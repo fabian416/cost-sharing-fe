@@ -6,6 +6,9 @@ import { ethers } from 'ethers';
 //import { useEventListener } from "./hooks/useEventListener";
 import  LandingPage  from './views/LandingPage';
 import Dashboard from './views/Dashboard';
+import GeneralPanel from './views/GeneralPanel';
+import GroupDetails from './views/GroupDetails';
+import FriendDetails from './views/FriendDetails';
 
 const router = createBrowserRouter([
   {
@@ -15,9 +18,14 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
-    // Aquí puedes incluir la lógica para proteger esta ruta si es necesario
+    children: [
+      { path: "", element: <GeneralPanel /> }, 
+      { path: "grupos/:groupId", element: <GroupDetails /> },
+      { path: "amigos/:friendId", element: <FriendDetails /> },
+    ],
   },
 ]);
+
 
 function App() {
   const { isConnected, chainId } = useWeb3ModalAccount();

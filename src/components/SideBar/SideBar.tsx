@@ -1,91 +1,54 @@
-import React, { useState } from 'react'
-import GroupModal from './GroupModal'
-import './Sidebar.css'
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import GroupModal from '../GroupModal/GroupModal';
+import './SideBar.css';
 
 interface Group {
-  id: number
-  name: string
-  status: string
+  id: number;
+  name: string;
 }
 
-interface Friend {
-  id: number
-  name: string
-}
-
-interface SidebarProps {
-  groups: Group[]
-  friends?: Friend[]
-  selectGroup: (group: Group) => void
-  selectFriend?: (friend: Friend) => void
-  changeView: (view: 'groupDetails' | 'transactions' | 'friendDetails') => void
-  openModal?: () => void
-}
-
-const Sidebar: React.FC<SidebarProps> = ({
-  groups,
-  friends,
-  selectGroup,
-  selectFriend,
-  changeView,
-}) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen)
-  }
+const Sidebar: React.FC<{ groups: Group[] }> = ({ groups }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   return (
     <div className="sidebar">
       <h2>Squary</h2>
 
+      {/* Sección Panel General */}
       <div className="sidebar-section">
-        <h3>Expenses</h3>
-        <button onClick={() => changeView('transactions')}>
-          Transaction History
-        </button>
+        <NavLink to="/dashboard">Panel General</NavLink>
       </div>
-
+      
+      {/* Sección Grupos */}
       <div className="sidebar-section">
         <h3>Groups</h3>
-        <button onClick={toggleModal}>Add new Group</button>
+        {/* Símbolo + para agregar grupos, abre el modal */}
+        <button onClick={toggleModal}>+</button>
         <ul>
           {groups.map((group) => (
-            <li
-              key={group.id}
-              onClick={() => {
-                selectGroup(group)
-                changeView('groupDetails')
-              }}
-            >
-              {group.name}
+            <li key={group.id}>
+              <NavLink to={`/dashboard/grupos/${group.id}`}>{group.name}</NavLink>
             </li>
           ))}
         </ul>
       </div>
 
+      {/* Sección Amigos (placeholder, sin funcionalidad por ahora) */}
       <div className="sidebar-section">
         <h3>Friends</h3>
         <ul>
-          {friends &&
-            friends.map((friend) => (
-              <li
-                key={friend.id}
-                onClick={() => {
-                  if (selectFriend) {
-                    selectFriend(friend)
-                  }
-                  changeView('friendDetails')
-                }}
-              >
-                {friend.name}
-              </li>
-            ))}
+          {/* Placeholder para futuros amigos */}
+          <li>Amigo 1 (ejemplo)</li>
+          <li>Amigo 2 (ejemplo)</li>
         </ul>
-        <button>+ Add</button>
       </div>
+
+      {/* Modal para agregar nuevos grupos */}
       {isModalOpen && <GroupModal closeModal={toggleModal} />}
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
