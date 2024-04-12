@@ -16,3 +16,5 @@ function useStatusBar() {
 }
 
 export default useStatusBar;
+
+
