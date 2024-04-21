@@ -1,20 +1,21 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import Sidebar from '../components/SideBar/SideBar'; // Asegúrate de que la ruta sea correcta
-import GroupModal from '../components/GroupModal/GroupModal'; // Asegúrate de que la ruta sea correcta
-
+import axios from 'axios';
+import Sidebar from '../components/SideBar/SideBar';
+import GroupModal from '../components/GroupModal/GroupModal';
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react";
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groups, setGroups] = useState([]);
-
   const navigate = useNavigate();
+  const { address: account } = useWeb3ModalAccount();
 
   useEffect(() => {
-    if (userContext?.account) {
-      fetchGroups(userContext.account).then(setGroups);
+    if (account) {
+      fetchGroups(account).then(setGroups);
     }
-  }, [userContext?.account]);
+  }, [account]);
 
   const fetchGroups = async (account) => {
     try {
@@ -28,7 +29,6 @@ const Dashboard = () => {
 
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
-  // Opción de manejar la selección de grupo desde Sidebar y navegar a su detalle
   const handleSelectGroup = (groupId) => {
     navigate(`/dashboard/grupos/${groupId}`);
   };

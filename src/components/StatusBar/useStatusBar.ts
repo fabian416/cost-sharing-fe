@@ -1,10 +1,12 @@
-import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react";
+import useContracts from "../../hooks/useContracts";
+
 
 function useStatusBar() {
-  const { open } = useWeb3Modal();
-  const { address, chainId, isConnected } = useWeb3ModalAccount();
+  const { walletConnected, chainId, open, address } = useContracts();
+  const [isRegistered, setIsRegistered] = useState(false);
 
   function openWalletConnectModal() {
+    console.log("Is Connected from useStatusBar:", walletConnected);
     open();
   }
 
@@ -12,9 +14,6 @@ function useStatusBar() {
     open({ view: "Networks" });
   }
 
-  return { openWalletConnectModal, openNetworks, address, chainId, isConnected };
+  return { openWalletConnectModal, openNetworks, address, chainId, walletConnected };
 }
-
 export default useStatusBar;
-
-
