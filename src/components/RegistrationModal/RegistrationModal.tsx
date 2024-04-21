@@ -1,52 +1,55 @@
-import React, { FormEvent } from 'react';
+import React from 'react';
 import Modal from 'react-modal';
-import styles from './RegistrationModal.module.css'; 
+import styles from './RegistrationModal.module.css';
 
 interface RegistrationModalProps {
     isOpen: boolean;
     onRequestClose: () => void;
-    handleSubmit: (event: FormEvent<HTMLFormElement>) => void;
+    onRegistered: (wasRegistered: boolean) => void; 
+    walletAddress?: string;  
+    alias: string;
+    setAlias: (alias: string) => void;
+    email: string;
+    setEmail: (email: string) => void;
+    handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+    isSubmitting: boolean;
+    error: string;
+}
 
-  }
-  // Estilos personalizados para el modal
-const customStyles = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: '#f2f2f2',
-      padding: '20px',
-      borderRadius: '10px'
-    },
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)'
-    }
-  };
-  
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({
-  isOpen,
-  onRequestClose,
-  handleSubmit
-}) => {
-  return (
-    <Modal
-        isOpen={isOpen}
-        onRequestClose={onRequestClose}
-        style={customStyles}
-        contentLabel="Registration Form"
-        ariaHideApp={false}
-    >
+    isOpen,
+    onRequestClose,
+    alias,
+    setAlias,
+    email,
+    setEmail,
+    handleSubmit,
+    isSubmitting,
+    error
+}) => (
+    <Modal isOpen={isOpen} onRequestClose={onRequestClose} className={styles.modal}>
         <form onSubmit={handleSubmit} className={styles.form}>
-            <input className={styles.input} name="alias" type="text" placeholder="Alias" required />
-            <input className={styles.input} name="email" type="email" placeholder="Email (opcional)" />
-            <button type="submit" className={styles.submitButton}>Submit</button>
+            <input
+                className={styles.input}
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
+                placeholder="Nickname"
+                required
+            />
+            <input
+                className={styles.input}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email (optional)"
+                type="email"
+            />
+            <button className={styles.submitButton} type="submit" disabled={isSubmitting}>
+                Submit
+            </button>
+            {error && <p className={styles.error}>{error}</p>}
         </form>
     </Modal>
-  );
-}
+);
 
 export default RegistrationModal;

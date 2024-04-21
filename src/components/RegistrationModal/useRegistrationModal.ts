@@ -1,33 +1,38 @@
-import { useState, FormEvent } from 'react'; // Asegúrate de incluir FormEvent aquí
-import axios from 'axios';
+import { useState } from 'react';
 
-const useRegistrationModal = (onRequestClose: () => void) => {
+const useRegistrationModal = (onRequestClose: () => void, onRegistrationSuccess: () => void) => {
     const [alias, setAlias] = useState('');
     const [email, setEmail] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:3001/api/users/register', {
-                alias,
-                email
-            });
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setIsSubmitting(true);
+        
+        // Aquí simulas el registro. En producción, harías una llamada a la API.
+        setTimeout(() => {
+            // Simulando una respuesta exitosa de la API
+            localStorage.setItem('userAlias', alias);
+            if (email) localStorage.setItem('userEmail', email);
+            onRegistrationSuccess();
+            onRequestClose();
+            setIsSubmitting(false);
+        }, 1000);
 
-            if (response.status === 200) {
-                onRequestClose(); // Cerrar modal si el registro es exitoso
-            }
-        } catch (error) {
-            console.error('Error during registration:', error);
-        }
+        // Gestión de errores simulada
+        setError(''); // Limpiar errores anteriores
     };
 
     return {
-        handleSubmit,
         alias,
         setAlias,
         email,
-        setEmail
+        setEmail,
+        handleSubmit,
+        isSubmitting,
+        error
     };
-}
+};
 
 export default useRegistrationModal;

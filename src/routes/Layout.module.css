@@ -1,0 +1,15 @@
+.applicationBackground {
+    background: linear-gradient(to bottom, #002946 0%, #010E27 9.5%, #010E27 9.5%, #002946 51.5%, #002946 51.5%, #010E27 100%);
+    width: 100dvw;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    height: fit-content;
+  }
+  
+  .panelsContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
