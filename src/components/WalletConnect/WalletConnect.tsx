@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from "./StatusBar.module.css";
+import styles from "./WalletConnect.module.css";
 import WalletConnectImg from "../../assets/walletConnect/walletConnectButton.png";
 import MaticIcon from "../../assets/walletConnect/polygonMaticIcon.png";
 import ProfilePic from "../../assets/walletConnect/userProfile.png";
 import RegistrationModal from '../RegistrationModal/RegistrationModal';
 import useRegistrationModal from '../RegistrationModal/useRegistrationModal';
-import useStatusBar from "./useWalletConnect";
+import useWalletConnect from  "./useWalletConnect";
 
 function WalletConnect() {
   const navigate = useNavigate();
-  const { openWalletConnectModal, address, walletConnected, isRegistered, setIsRegistered } = useStatusBar();
+  const { openWalletConnectModal, address, walletConnected, isRegistered, setIsRegistered } = useWalletConnect();
   const {
     handleSubmit,
     alias,
@@ -18,17 +18,21 @@ function WalletConnect() {
     email,
     setEmail,
     isSubmitting,
-    error
+    error,
+    handleCloseModal
   } = useRegistrationModal(() => setIsRegistered(true), () => navigate('/dashboard'));
 
+
   useEffect(() => {
-    console.log("Verificando conexión en WalletConnect:", walletConnected);// FIJARME QUE SE LOGEA APENAS ME DESCONECTO Y CONECTO DESDE WALLET CONNECT
-    if (!walletConnected) {
-      console.log("No hay conexión de wallet, redirigiendo al inicio...");
-      navigate('/'); // Navegar al inicio si no hay conexión de wallet
+    if (walletConnected && isRegistered) {
+        console.log("Conectado y registrado, redirigiendo al dashboard...");
+        navigate('/dashboard');
+    } else if (!walletConnected) {
+        console.log("No hay conexión de wallet, redirigiendo al inicio...");
+        navigate('/');
     }
-  }, [walletConnected, navigate]);
-  
+  }, [walletConnected, isRegistered, navigate]);
+
   const handleRegistrationComplete = (wasRegistered: boolean) => {
     setIsRegistered(wasRegistered);
     if (wasRegistered) {
@@ -36,22 +40,23 @@ function WalletConnect() {
       navigate('/dashboard'); // Redirige al dashboard solo si el registro es exitoso
     }
   };
-  
+
   return (
     <section className={styles.statusbarContainer}>
       {walletConnected ? (
         <>
           <button className={styles.authorizedButton} onClick={openWalletConnectModal}>
             <div>
+              {/* Asegúrate de que las imágenes y textos sean elementos separados adecuadamente */}
               <img src={MaticIcon} alt="Polygon Network Icon" />
               <div className={styles.onlineDot} />
-              <span>{address?.slice(0, 10)}...</span>
+              <span>{address ? address.slice(0, 10) : "Loading..."}</span>
             </div>
             <img src={ProfilePic} alt="user profile picture" />
           </button>
           <RegistrationModal
             isOpen={!isRegistered}
-            onRequestClose={() => setIsRegistered(true)}
+            onRequestClose={handleCloseModal} // Asegúrate de que handleCloseModal esté definido y sea pasado correctamente
             onRegistered={handleRegistrationComplete}
             walletAddress={address}
             handleSubmit={handleSubmit}
@@ -70,6 +75,6 @@ function WalletConnect() {
       )}
     </section>
   );
-}
+      }
 
 export default WalletConnect;
