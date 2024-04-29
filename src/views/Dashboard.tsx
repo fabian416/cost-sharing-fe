@@ -4,6 +4,7 @@ import axios from 'axios';
 import Sidebar from '../components/SideBar/SideBar';
 import GroupModal from '../components/GroupModal/GroupModal';
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react";
+import WalletConnect from '../components/WalletConnect/WalletConnect';
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,6 +41,7 @@ const Dashboard = () => {
         selectGroup={handleSelectGroup}
         openModal={toggleModal}
       />
+      <WalletConnect />
       <div className="dashboard-content">
         <Outlet />
       </div>
