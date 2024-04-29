@@ -1,0 +1,31 @@
+.dashboard {
+  background-color: #ffffff !important;
+  display: flex;
+  height: 100vh;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.top-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
+  gap: 10px; /* Espacio entre las columnas */
+}
+
+.top-left, .top-right {
+  padding: 10px;
+  background-color: #f3f3f3; /* Color de fondo para visualización */
+  border: 1px solid #ccc; /* Borde ligero para definir las áreas */
+}
+
+.main-section {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #ffffff; /* Color de fondo para la sección principal */
+  overflow-y: auto; /* Permite desplazamiento si el contenido es muy largo */
+}
