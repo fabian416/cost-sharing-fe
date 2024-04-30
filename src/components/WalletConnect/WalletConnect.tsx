@@ -48,9 +48,6 @@ function WalletConnect() {
             openWalletConnectModal();  // De otra manera, abre la conexión de wallet directamente
         }
     };
-    
-    
-    
 
     return (
         <section className={styles.statusbarContainer}>

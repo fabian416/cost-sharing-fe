@@ -3,7 +3,7 @@
 :root {
     --color-primary: #FFA500; /* Naranja para botones y elementos interactivos */
     --color-background: #121312; /* Fondo oscuro para la barra lateral */
-    --color-text: #FFFFFF; /* Color de texto blanco para contraste */
+    --color-text: #FFFF; /* Color de texto blanco para contraste */
     --color-hover: #e69500; /* Un naranja más oscuro para estado hover */
     --color-border: rgba(255, 255, 255, 0.25); /* Borde sutil en blanco */
     --sidebar-width: 370px; /* Ancho de la barra lateral */

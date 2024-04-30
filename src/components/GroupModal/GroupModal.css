@@ -14,7 +14,7 @@
 }
 
 .modal-content {
-    background: #f1f3f2; /* Fondo claro para el contenido del modal */
+    background: #14bf69; /* Fondo claro para el contenido del modal */
     padding: 20px; /* Padding interior para todo el contenido */
     border-radius: 20px; /* Bordes redondeados */
     border: 1px solid var(--color-border); /* Borde sutil */

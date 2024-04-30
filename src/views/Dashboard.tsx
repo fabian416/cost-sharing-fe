@@ -5,6 +5,7 @@ import Sidebar from '../components/SideBar/SideBar';
 import GroupModal from '../components/GroupModal/GroupModal';
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react";
 import WalletConnect from '../components/WalletConnect/WalletConnect';
+import styles from './Dashboard.module.css'; // Asegúrate de importar correctamente los estilos
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,7 +36,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard">
+    <div className={styles.dashboard}>
       <Sidebar
         groups={groups}
         selectGroup={handleSelectGroup}
@@ -43,8 +44,16 @@ const Dashboard = () => {
       />
       <WalletConnect />
       <div className="dashboard-content">
-        <Outlet />
+      <div className="top-section">
+        <div className="top-left">Contenido de prueba 1</div>
+        <div className="top-right">Contenido de prueba 2</div>
       </div>
+      <div className="main-section">
+        Contenido de prueba principal
+ 
+      </div>
+    </div>
+    <Outlet />
       {isModalOpen && <GroupModal closeModal={toggleModal} />}
     </div>
   );

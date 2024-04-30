@@ -1,31 +1,39 @@
+/* Dashboard.module.css */
 .dashboard {
-  background-color: #ffffff !important;
+  background-color: white; /* Fondo blanco para el dashboard */
   display: flex;
+  flex-direction: column;
   height: 100vh;
+  overflow: hidden;
 }
 
 .dashboard-content {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  background-color: #ffcccc; /* Fondo rojo claro para ver la sección */
   overflow: hidden;
 }
 
 .top-section {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
-  gap: 10px; /* Espacio entre las columnas */
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background-color: #ccffcc; /* Fondo verde claro para ver la sección */
 }
 
 .top-left, .top-right {
-  padding: 10px;
-  background-color: #f3f3f3; /* Color de fondo para visualización */
-  border: 1px solid #ccc; /* Borde ligero para definir las áreas */
+  background-color: black; /* Fondo azul claro para diferenciar los contenedores */
+  border: 2px solid #000; /* Borde negro para visualizar los contenedores */
+  padding: 20px;
+  border-radius: 8px;
 }
 
 .main-section {
   flex-grow: 1;
+  background-color: #ffffcc; /* Fondo amarillo claro para ver la sección */
   padding: 20px;
-  background-color: #ffffff; /* Color de fondo para la sección principal */
-  overflow-y: auto; /* Permite desplazamiento si el contenido es muy largo */
+  border-radius: 8px;
+  border: 2px solid #000; /* Borde negro para visualizar el contenedor */
+  overflow-y: auto;
 }
