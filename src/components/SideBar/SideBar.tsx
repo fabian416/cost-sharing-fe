@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import GroupModal from '../GroupModal/GroupModal';
-import './SideBar.css';
+import styles from './SideBar.module.css';
 
 interface Group {
   id: number;

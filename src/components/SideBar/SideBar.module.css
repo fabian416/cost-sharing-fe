@@ -1,0 +1,71 @@
+/* SideBar.module.css */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 370px;
+    height: 100vh;
+    background: #121312;
+    color: #ffffff;
+    border-right: 2px solid rgba(255, 255, 255, 0.25);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    z-index: 1000;
+    box-shadow: 1px 0 5px rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.section {
+    margin-bottom: 1.5rem;
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    padding-bottom: 20px;
+}
+
+.title, .subtitle, .button, .listItem {
+    text-align: center;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.title {
+    margin-bottom: 30px;
+    font-weight: bold;
+    color: #FFA500;
+    font-size: 1.5rem;
+}
+
+.subtitle {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.button {
+    margin-bottom: 10px;
+    padding: 15px 20px;
+    background: #FFA500;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.button:hover {
+    background: #e69500;
+    cursor: pointer;
+}
+
+.listItem {
+    cursor: pointer;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.listItem:hover {
+    background-color: rgba(255, 165, 0, 0.2);
+}

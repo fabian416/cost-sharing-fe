@@ -43,17 +43,16 @@ const Dashboard = () => {
         openModal={toggleModal}
       />
       <WalletConnect />
-      <div className="dashboard-content">
-      <div className="top-section">
-        <div className="top-left">Contenido de prueba 1</div>
-        <div className="top-right">Contenido de prueba 2</div>
-      </div>
-      <div className="main-section">
-        Contenido de prueba principal
- 
-      </div>
-    </div>
-    <Outlet />
+      <div className={styles.dashboardContent}>
+        <div className={styles.topSection}>
+            <div className={styles.topLeft}>Contenido de prueba 1</div>
+            <div className={styles.topRight}>Contenido de prueba 2</div>
+        </div>
+        <div className={styles.mainSection}>
+            Contenido de prueba principal
+            <Outlet />
+          </div>
+          </div>
       {isModalOpen && <GroupModal closeModal={toggleModal} />}
     </div>
   );

@@ -10,8 +10,8 @@
 }
 
   
-  .panelsContainer {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
+.panelsContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
