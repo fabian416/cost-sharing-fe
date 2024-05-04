@@ -1,0 +1,15 @@
+.generalPanel {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .summaryBox {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #e8e8e8; /* Un fondo ligeramente diferente para distinguir las secciones */
+    border-radius: 8px;
+  }
+
+  
