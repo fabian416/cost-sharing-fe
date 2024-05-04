@@ -10,6 +10,26 @@ function useContracts() {
   const { open } = useWeb3Modal();
   const walletConnected = Boolean(address) && isConnected;
 
+  async function connectSquaryContract() {
+    if (walletConnected && walletProvider) {
+      try {
+        const contract = await buildContract(walletProvider, SQUARY.abi, SQUARY.address);
+        setSquaryContract(contract);
+      } catch (error) {
+        console.error("Failed to get contract:", error);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (walletConnected && address) {
+      connectContracts();
+    } else {
+      clearContracts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletConnected, address]);
+
 
   async function checkConnectedNetwork(): Promise<boolean> {
     if (walletProvider && isConnected && walletProvider.request) {
@@ -33,13 +53,25 @@ function useContracts() {
   }
 
 
+  async function connectContracts() {
+    const correctNetwork = await checkConnectedNetwork();
+    if (correctNetwork) {
+      connectSquaryContract();
+    }
+  }
+  function clearContracts() {
+    setSquaryContract(null);
+  }
+
   return {
     checkConnectedNetwork,
     open,
     chainId,
     walletConnected,
-    address
-  };
-}
+    address,
+    connectContracts
 
+  };
+
+}
 export default useContracts;

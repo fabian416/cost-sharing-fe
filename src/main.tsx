@@ -1,20 +1,20 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css';
-import { APPLICATION_CONFIGURATION } from './consts/contracts.ts';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
 import { createWeb3Modal, defaultConfig } from "@web3modal/ethers5/react";
+import App from "./App";
+import { APPLICATION_CONFIGURATION } from "./consts/contracts";
 
-
+// const projectId = import.meta.env.VITE_PROJECT_ID;
+const projectId = "";
 const { chainConfig } = APPLICATION_CONFIGURATION;
-const projectId = 'YOUR_PROJECT_ID'
 
 const metadata = {
-  name: 'Squary App',
-  description: 'Cost sharing application',
-  url: 'https://mywebsite.com', // origin must match your domain & subdomain
-  icons: ['https://avatars.mywebsite.com/']
-}
+  name: "Squary",
+  description: "Share expenses - Settle up with crypto",
+  url: "",
+  icons: ["https://avatars.mywebsite.com/"],
+};
 
 createWeb3Modal({
   ethersConfig: defaultConfig({ metadata }),
@@ -23,8 +23,8 @@ createWeb3Modal({
   enableAnalytics: true,
 });
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

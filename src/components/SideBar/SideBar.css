@@ -1,0 +1,36 @@
+.sidebar {
+    width: 250px; /* Ancho de la sidebar */
+    height: 100vh; /* Altura completa de la vista */
+    background-color: #000; /* Fondo negro */
+    color: #fff; /* Texto blanco */
+    padding: 20px; /* Espaciado interno */
+    position: fixed; /* Fija en la página */
+    left: 0; /* Alineada a la izquierda */
+    top: 0; /* Alineada al top */
+    display: flex; /* Usando Flexbox */
+    flex-direction: column; /* Elementos en columna */
+    align-items: center; /* Alineación horizontal */
+  }
+  
+  .sidebar h1 {
+    margin: 0 0 20px 0; /* Espacio debajo del logo */
+  }
+  
+  .sidebar ul {
+    list-style: none; /* Remueve los bullets */
+    padding: 0; /* Remueve el padding */
+    width: 100%; /* Ancho completo */
+  }
+  
+  .sidebar ul li {
+    padding: 10px; /* Espaciado de cada elemento */
+    border-bottom: 1px solid #222; /* Borde sutil para cada item */
+    width: 100%; /* Ancho completo */
+    text-align: center; /* Texto centrado */
+  }
+  
+  .sidebar ul li:hover {
+    background-color: #333; /* Cambio de color al pasar el ratón */
+    cursor: pointer; /* Cursor como puntero */
+  }
+  
