@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from './views/Home';
-import Dashboard from './views/Dashboard';
-import GeneralPanel from './views/GeneralPanel';
-import GroupDetails from './views/GroupDetails';
-import FriendDetails from './views/FriendDetails';
-import RegistrationModal from './views/Home/RegistrationModal';
+import Home from './views/Home/Home';
+import Dashboard from './views/Dashboard/Dashboard';
+import GeneralPanel from './views/GeneralPanel/GeneralPanel';
+import GroupDetails from './views/GroupDetails/GroupDetails';
+import FriendDetails from './views/FriendDetails/FriendDetails';
 
 const router = createBrowserRouter([
   {
@@ -24,22 +22,9 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
-
-  const handleRegistrationSuccess = () => {
-    // Aquí puedes poner la lógica que se ejecutará tras un registro exitoso
-    setIsRegistered(true);
-    setIsModalOpen(false);
-  };
 
   return (
     <>
-      <RegistrationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onRegister={handleRegistrationSuccess} 
-      />
       <RouterProvider router={router} />
     </>
   );

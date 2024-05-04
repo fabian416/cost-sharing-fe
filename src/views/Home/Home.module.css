@@ -1,0 +1,45 @@
+/* Home.module.css */
+.homeContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f4f4f4; /* Fondo claro */
+    color: #333; /* Texto oscuro para contraste */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.title {
+    font-size: 2rem;
+    color: #222;
+    margin-bottom: 20px;
+}
+
+.description {
+    font-size: 1.2rem;
+    text-align: center;
+    max-width: 600px;
+    margin-bottom: 30px;
+}
+
+.buttonContainer {
+    display: flex;
+    gap: 20px;
+}
+
+.button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #0056b3; /* Azul oscuro */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #003580; /* Azul más oscuro al pasar el ratón */
+}
