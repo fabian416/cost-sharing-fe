@@ -1,29 +1,42 @@
 import React, { useState } from 'react';
 import { useWeb3Modal } from '@web3modal/ethers5/react';
 import useContracts from '../../hooks/useContracts';
+import styles from './WalletButton.module.css';
 
-function WalletConnect() {
+interface WalletButtonProps {
+    onClick?: () => void;  // Prop onClick opcional
+}
+
+const WalletButton: React.FC<WalletButtonProps> = ({ onClick }) => {
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null); // Cambia a string para manejar mensajes de error
+    const [error, setError] = useState<string | null>(null);
     const { open } = useWeb3Modal();
     const { checkConnectedNetwork, connectContracts } = useContracts();
 
-    const handleConnect = async () => {
+    const handleDefaultConnect = async () => {
         setIsLoading(true);
         setError(null);
         try {
-            await open();
-            const isCorrectNetwork = await checkConnectedNetwork();
+            await open();  // Intenta abrir la conexión con la wallet
+            const isCorrectNetwork = await checkConnectedNetwork();  // Comprueba si la red es correcta
             if (!isCorrectNetwork) {
                 throw new Error('Please switch to the correct network.');
             }
-            await connectContracts();
+            await connectContracts();  // Conecta los contratos si la red es correcta
         } catch (err) {
-            const error = err as Error; // Afirmación de tipo
+            const error = err as Error;
             console.error('Error al conectar la billetera o cargar contratos:', error);
-            setError(error.message || 'Failed to connect.'); // Usa message de Error
+            setError(error.message || 'Failed to connect.');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleClick = () => {
+        if (onClick) {
+            onClick();  // Si hay una prop onClick, úsala
+        } else {
+            handleDefaultConnect();  // Si no, usa la lógica de conexión predeterminada
         }
     };
 
@@ -32,7 +45,7 @@ function WalletConnect() {
             {isLoading ? (
                 <p>Loading...</p>
             ) : (
-                <button onClick={handleConnect} disabled={isLoading}>
+                <button className={styles.connectWalletButton} onClick={handleClick} disabled={isLoading}>
                     Connect Wallet
                 </button>
             )}
@@ -41,4 +54,4 @@ function WalletConnect() {
     );
 }
 
-export default WalletConnect;
+export default WalletButton;

@@ -1,9 +1,9 @@
 import React from 'react';
-import './Sidebar.css'; // Asegúrate de importar los estilos
+import styles from './SideBar.module.css'; // Importa correctamente el módulo CSS
 
 const Sidebar = () => {
   return (
-    <div className="sidebar">
+    <div className={styles.sidebar}>
       <h1>Logo</h1>
       <ul>
         <li>Inicio</li>

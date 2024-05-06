@@ -8,7 +8,7 @@ import FriendDetails from './views/FriendDetails/FriendDetails';
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />, // Directo a la Landing Page
+    element: <Home />, 
   },
   {
     path: "dashboard",
