@@ -4,12 +4,12 @@
     background-color: #000; /* Fondo negro */
     color: #fff; /* Texto blanco */
     padding: 20px; /* Espaciado interno */
-    position: fixed; /* Fija en la página */
     left: 0; /* Alineada a la izquierda */
     top: 0; /* Alineada al top */
     display: flex; /* Usando Flexbox */
     flex-direction: column; /* Elementos en columna */
     align-items: center; /* Alineación horizontal */
+    flex: 0 0 450px;  /* Ancho fijo para la sidebar, ajusta según tus necesidades */
   }
   
   .sidebar h1 {

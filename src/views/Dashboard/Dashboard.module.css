@@ -1,10 +1,22 @@
-.dashboard {
-    display: flex;
-    height: 100vh;
-  }
-  
-  .content {
-    flex-grow: 1;
-    overflow: auto;
-  }
-  
+/* Dashboard.module.css */
+.dashboardContainer {
+  display: flex;
+  width: 100%; /* Asegura que tome todo el ancho disponible */
+}
+
+.mainContent {
+  flex-grow: 1; /* Asegura que tome el espacio restante que no usa la Sidebar */
+  display: flex;
+  flex-direction: column; /* Organiza los elementos en columna */
+}
+
+.topBar {
+  display: flex;
+  justify-content: flex-end; /* Alinea el ConnectButton a la derecha */
+  padding: 10px; /* Añade un poco de espacio alrededor */
+}
+
+/* Asegúrate de que el contenido principal toma el espacio vertical disponible */
+.content {
+  flex-grow: 1;
+}

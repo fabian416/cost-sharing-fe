@@ -1,0 +1,14 @@
+.connectWalletButton {
+    all: unset;
+    cursor: pointer;
+    height: 43px;
+  }
+  
+  .connectWalletButton>img {
+    height: 100%;
+  }
+  
+  .connectWalletButton:hover {
+    background-color: orange; /* Cambio de color al pasar el mouse */
+  }
+  
