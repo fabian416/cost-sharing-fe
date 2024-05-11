@@ -6,7 +6,7 @@ import App from "./App";
 import { APPLICATION_CONFIGURATION } from "./consts/contracts";
 
 const projectId = "4d378fa56130355ea47ae76070a0c491";
-const { chainConfig } = APPLICATION_CONFIGURATION;
+const { chainAmoy, chainPolygon} = APPLICATION_CONFIGURATION;
 
 const metadata = {
   name: "Squary",
@@ -16,8 +16,17 @@ const metadata = {
 };
 
 createWeb3Modal({
+  themeMode: 'light',
+  themeVariables: {
+    '--w3m-color-mix': '#FD6A02', // Color principal del botón
+    '--w3m-accent': 'blue',
+    '--w3m-color-mix-strength': 52, // Intensidad del color
+    '--w3m-font-size-master': '18px', // Tamaño de la fuente
+    '--w3m-border-radius-master': '8px', // Radio del borde
+    
+  },
   ethersConfig: defaultConfig({ metadata }),
-  chains: [chainConfig],
+  chains: [chainAmoy, chainPolygon],
   projectId,
   enableAnalytics: true,
 });

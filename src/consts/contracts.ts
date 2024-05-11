@@ -8,13 +8,20 @@ const DEVELOPMENT_CONFIGURATION = {
       }
     },
     chainId: 80002,
-    chainConfig: {
+    chainAmoy: {
       chainId: 80002,
       name: "Amoy",
       currency: "MATIC",
       explorerUrl: "https://www.oklink.com/amoy",
       rpcUrl: "https://rpc-amoy.polygon.technology/",
     },
+    chainPolygon: {
+      chainId: 137,
+      name: "Polygon Mainnet",
+      currency: "Matic",
+      explorerUrl: "https://polygon-mainnet.infura.io",
+      rpcUrl: "https://polygon-mainnet.infura.io"
+    }
   };
 
   export const APPLICATION_CONFIGURATION = DEVELOPMENT_CONFIGURATION;
