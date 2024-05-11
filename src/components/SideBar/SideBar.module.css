@@ -9,7 +9,7 @@
     display: flex; /* Usando Flexbox */
     flex-direction: column; /* Elementos en columna */
     align-items: center; /* Alineación horizontal */
-    flex: 0 0 450px;  /* Ancho fijo para la sidebar, ajusta según tus necesidades */
+    flex: 0 0 400px;  /* Ancho fijo para la sidebar, ajusta según tus necesidades */
   }
   
   .sidebar h1 {

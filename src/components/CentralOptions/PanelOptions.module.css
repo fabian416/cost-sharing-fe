@@ -1,0 +1,78 @@
+.panelOptions {
+    padding: 20px 40px;
+    background-color: transparent;
+    backdrop-filter: blur(14px);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .title {
+    margin-bottom: 45px;
+    font-size:59px;
+    color: whitesmoke;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  
+  .buttonsContainer {
+    display: flex;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(20px);
+    border-radius: 8px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%; /* Ajustado para mayor amplitud */
+    margin-bottom: 15px;
+    margin-right:35px ;
+    margin-left: 15px;
+  }
+  
+  .button {
+    margin: 15px 75px;
+    padding: 19px 24px; /* Aumentado para botones más grandes */
+    font-size: 26px; /* Tamaño de fuente más grande */
+    font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
+    border: 0; /* Sin borde */
+    border-radius: 5px;
+    flex-grow: 1;
+    color: #ffffff; /* Texto en color blanco */
+    background-color: #ff7f50; /* Color de fondo para Add Expense */
+    transition: background-color 0.3s; /* Suaviza la transición del color */
+  }
+  
+  .button:hover {
+    background-color: #e06c45; /* Color más oscuro para el estado hover */
+  }
+  
+  .settleUp {
+    background-color: #32cd32; /* Color de fondo para Settle Up */
+  }
+  
+  .settleUp:hover {
+    background-color: #28a828; /* Color más oscuro para el estado hover */
+  }
+  
+  .additionalContainer {
+    background-color: rgba(255, 255, 255, 0.5); /* Similar al buttonsContainer */
+    backdrop-filter: blur(20px); /* Efecto de difuminado */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 20px; /* Espacio interior adecuado */
+    margin: 15px 30px; /* Margen para separación vertical y horizontal */
+    width: calc(100% - 60px); /* Ajusta el ancho teniendo en cuenta el margen */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra consistente con PanelOptions */
+  }
+  
+  .subTitle {
+    font-size: 24px; /* Tamaño de fuente para los subtítulos */
+    color: whitesmoke; /* Color de texto */
+    margin-bottom: 10px; /* Espacio después del título */
+    font-family: Arial, Helvetica, sans-serif; /* Fuente consistente */
+  }
+  

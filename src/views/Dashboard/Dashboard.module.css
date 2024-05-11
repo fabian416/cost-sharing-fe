@@ -5,10 +5,14 @@
 }
 
 .mainContent {
-  flex-grow: 1; /* Asegura que tome el espacio restante que no usa la Sidebar */
+  flex-grow: 1;
   display: flex;
-  flex-direction: column; /* Organiza los elementos en columna */
+  flex-direction: column;
+  background-image: url('../../assets/squaryBg.jpg'); /* Ajusta la ruta según tu estructura */
+  background-size: cover; /* Cubre completamente el área sin perder proporciones */
+  background-position: center; /* Centra la imagen en el contenedor */
 }
+
 
 .topBar {
   display: flex;

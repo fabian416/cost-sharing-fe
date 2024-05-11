@@ -18,9 +18,9 @@ const metadata = {
 createWeb3Modal({
   themeMode: 'light',
   themeVariables: {
-    '--w3m-color-mix': '#FD6A02', // Color principal del botón
+    '--w3m-color-mix': 'black', // Color principal del botón
     '--w3m-accent': 'blue',
-    '--w3m-color-mix-strength': 52, // Intensidad del color
+    '--w3m-color-mix-strength': 20, // Intensidad del color
     '--w3m-font-size-master': '18px', // Tamaño de la fuente
     '--w3m-border-radius-master': '8px', // Radio del borde
     
