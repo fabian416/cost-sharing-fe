@@ -38,6 +38,15 @@
   text-align: center; /* Texto centrado */
 }
 
+.sectionTitleButton {
+  cursor: pointer; /* Cursor de puntero */
+  transition: background-color 0.3s;
+}
+
+.sectionTitleButton:hover {
+  background-color: rgba(255, 165, 0, 0.2); /* Cambio de color al pasar el ratón */
+}
+
 .subSection {
   margin: 10px 0; /* Espaciado vertical entre sub-secciones */
   padding: 15px 20px; /* Espaciado interno */
@@ -75,3 +84,4 @@
 .sidebar ul li:hover {
   background-color: rgba(255, 165, 0, 0.2); /* Cambio de color al pasar el ratón */
 }
+

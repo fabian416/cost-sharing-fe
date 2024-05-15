@@ -1,12 +1,19 @@
 import React from 'react';
 import styles from './SideBar.module.css'; // Asegúrate de tener la ruta correcta
+import { useNavigate } from 'react-router-dom'; // Importa el hook useNavigate
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handlePanelClick = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <div className={styles.sidebar}>
       <h1 className={styles.logo}>Squary</h1>
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>General Panel</div>
+        <div className={`${styles.sectionTitle} ${styles.sectionTitleButton}`} onClick={handlePanelClick}>Dashboard</div>
       </div>
       <div className={styles.section}>
         <div className={styles.sectionTitle}>Groups</div>
@@ -32,8 +39,3 @@ const Sidebar = () => {
 }
 
 export default Sidebar;
-
-
-
-
-
