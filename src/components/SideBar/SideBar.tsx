@@ -1,13 +1,39 @@
-import React from 'react';
-import styles from './SideBar.module.css'; // Asegúrate de tener la ruta correcta
-import { useNavigate } from 'react-router-dom'; // Importa el hook useNavigate
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import styles from './SideBar.module.css';
+import GroupModal from '../GroupModal/GroupModal'; 
 
-const Sidebar = () => {
+interface SidebarProps {
+  createGroup: (groupName: string, members: string[], tokenAddress: string, signatureThreshold: string) => Promise<void>;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ createGroup }) => {
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   const handlePanelClick = () => {
     navigate('/dashboard');
   };
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  // Lista de grupos simulados (mocks)
+  const groups = [
+    { id: 1, name: "Group 1" },
+    { id: 2, name: "Group 2" },
+    { id: 3, name: "Group 3" },
+    { id: 4, name: "Group 4" },
+    { id: 5, name: "Group 5" },
+    { id: 6, name: "Group 6" },
+    { id: 7, name: "Group 7" },
+    { id: 8, name: "Group 8" },
+  ];
 
   return (
     <div className={styles.sidebar}>
@@ -17,25 +43,22 @@ const Sidebar = () => {
       </div>
       <div className={styles.section}>
         <div className={styles.sectionTitle}>Groups</div>
-        <div className={styles.subSection}>+</div>
+        <div className={styles.subSection} onClick={handleOpenModal}>+</div>
         <ul>
-          <li>Group 1</li>
-          <li>Group 2</li>
-          <li>Group 3</li>
-          <li>Group 4</li>
-          <li>Group 5</li>
-          <li>Group 6</li>
-          <li>Group 7</li>
-          <li>Group 8</li>
-          {/* Agrega más grupos según sea necesario */}
+          {groups.map(group => (
+            <li key={group.id}>
+              <Link to={`/dashboard/grupos/${group.id}`}>{group.name}</Link>
+            </li>
+          ))}
         </ul>
       </div>
       <div className={styles.section}>
         <div className={styles.sectionTitle}>Friends</div>
         <div className={styles.subSection}>+</div>
       </div>
+      <GroupModal show={showModal} handleClose={handleCloseModal} createGroup={createGroup} />
     </div>
   );
-}
+};
 
 export default Sidebar;
