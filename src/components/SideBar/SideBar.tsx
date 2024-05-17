@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './SideBar.module.css';
-import GroupModal from '../GroupModal/GroupModal'; 
+import GroupModal from '../GroupModal/GroupModal';
+import { useUserGroups } from '../../hooks/useUserGroups'; // Importa tu hook
 
 interface SidebarProps {
   createGroup: (groupName: string, members: string[], tokenAddress: string, signatureThreshold: string) => Promise<void>;
@@ -10,6 +11,11 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ createGroup }) => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
+  const { groups, fetchGroups } = useUserGroups(); // Usa tu hook para obtener los grupos
+
+  useEffect(() => {
+    fetchGroups(); // Carga los grupos cuando el componente se monta
+  }, [fetchGroups]);
 
   const handlePanelClick = () => {
     navigate('/dashboard');
@@ -23,17 +29,9 @@ const Sidebar: React.FC<SidebarProps> = ({ createGroup }) => {
     setShowModal(false);
   };
 
-  // Lista de grupos simulados (mocks)
-  const groups = [
-    { id: 1, name: "Group 1" },
-    { id: 2, name: "Group 2" },
-    { id: 3, name: "Group 3" },
-    { id: 4, name: "Group 4" },
-    { id: 5, name: "Group 5" },
-    { id: 6, name: "Group 6" },
-    { id: 7, name: "Group 7" },
-    { id: 8, name: "Group 8" },
-  ];
+  const handleGroupCreated = () => {
+    fetchGroups(); // Actualiza la lista de grupos cuando se crea un nuevo grupo
+  };
 
   return (
     <div className={styles.sidebar}>
@@ -56,7 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({ createGroup }) => {
         <div className={styles.sectionTitle}>Friends</div>
         <div className={styles.subSection}>+</div>
       </div>
-      <GroupModal show={showModal} handleClose={handleCloseModal} createGroup={createGroup} />
+      <GroupModal show={showModal} handleClose={handleCloseModal} createGroup={createGroup} onGroupCreated={handleGroupCreated} />
     </div>
   );
 };

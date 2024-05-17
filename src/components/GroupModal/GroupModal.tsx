@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import styles from './GroupModal.module.css'; // Asegúrate de tener la ruta correcta
+import styles from './GroupModal.module.css';
+import { useWeb3ModalAccount } from '@web3modal/ethers5/react';
 
 interface GroupModalProps {
   show: boolean;
   handleClose: () => void;
   createGroup: (groupName: string, members: string[], tokenAddress: string, signatureThreshold: string) => Promise<void>;
+  onGroupCreated: () => void; // Añade esta propiedad
 }
 
-const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup }) => {
+const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup, onGroupCreated }) => {
   const [groupName, setGroupName] = useState('');
   const [membersInput, setMembersInput] = useState('');
   const [members, setMembers] = useState<string[]>([]);
   const [tokenAddress, setTokenAddress] = useState('');
   const [signatureThreshold, setSignatureThreshold] = useState('');
+  const { address } = useWeb3ModalAccount();
 
   const isValidAddress = (address: string) => {
     return /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -35,7 +38,14 @@ const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup 
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    await createGroup(groupName, members, tokenAddress, signatureThreshold);
+    if (!groupName || !tokenAddress || !signatureThreshold || members.length === 0) {
+      alert('Please fill in all fields and add at least one member.');
+      return;
+    }
+
+    const allMembers = [address, ...members].filter(Boolean) as string[];
+    await createGroup(groupName, allMembers, tokenAddress, signatureThreshold);
+    onGroupCreated(); // Llama a esta función para actualizar la lista de grupos
     handleModalClose();
   };
 
@@ -56,7 +66,7 @@ const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup 
     if (Number(signatureThreshold) > members.length + 1) {
       setSignatureThreshold('');
     }
-  }, [members]);
+  }, [members, signatureThreshold]);
 
   return (
     <Modal
@@ -127,6 +137,3 @@ const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup 
 };
 
 export default GroupModal;
-
-
-
