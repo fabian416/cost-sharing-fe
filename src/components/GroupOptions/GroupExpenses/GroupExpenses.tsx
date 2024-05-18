@@ -8,14 +8,16 @@ const GroupExpenses = ({ groupId }) => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Group {groupId} Expenses</h2>
-      <ul className={styles.expensesList}>
-        {expenses.map((expense, index) => (
+      <div className={styles.groupContainer}>
+        <h2 className={styles.title}>Group {groupId} Expenses</h2>
+        <ul className={styles.expensesList}>
+          {expenses.map((expense, index) => (
           <li key={index}>
             {expense.description}: {expense.amount} paid by {expense.paidBy}
           </li>
-        ))}
-      </ul>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
