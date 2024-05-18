@@ -1,3 +1,4 @@
+/* GroupExpenses.module.css */
 .container {
   padding: 20px;
   margin: 20px;
@@ -5,25 +6,25 @@
   justify-content: center;
   background-color: transparent;
   backdrop-filter: blur(14px);
-  border-radius: 25px;  
+  border-radius: 25px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: calc(100% - 40px);
+  width: 45%; /* Ajusta el tamaño fijo para que sea más grande */
 }
 
 .groupContainer {
-  display: flex;               
-  flex-direction: column;      
-  justify-content: flex-start; 
-  align-items: center;         
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   flex: 1;
   padding: 20px;
   margin: 18px;
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(14px);
-  border-radius: 40px;  
+  border-radius: 40px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: auto;
-  min-height: 400px; 
+  min-height: 400px;
 }
 
 .subTitle {
@@ -34,7 +35,7 @@
 }
 
 .subTitle, p {
-  text-align: center;          
-  margin: 0;                   
-  width: 100%;                 
+  text-align: center;
+  margin: 0;
+  width: 100%;
 }

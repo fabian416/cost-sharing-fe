@@ -5,7 +5,7 @@ const GroupSection2 = () => {
   return (
     <div className={styles.container}>
       <div className={styles.groupContainer}>
-        <h2 className={styles.subTitle}>Group {} Section 2</h2>
+        <h2 className={styles.subTitle}>Balances</h2>
         {/* Otros elementos específicos para GroupDetails */}
       </div>
     </div>
