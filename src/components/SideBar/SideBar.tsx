@@ -45,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ createGroup }) => {
         <ul>
           {groups.map(group => (
             <li key={group.id}>
-              <Link to={`/dashboard/grupos/${group.id}`}>{group.name}</Link>
+              <Link to={`/dashboard/grupos/${group.id}/${group.name}`}>{group.name}</Link>
             </li>
           ))}
         </ul>

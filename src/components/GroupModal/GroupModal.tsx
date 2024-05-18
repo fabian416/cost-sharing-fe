@@ -7,7 +7,7 @@ interface GroupModalProps {
   show: boolean;
   handleClose: () => void;
   createGroup: (groupName: string, members: string[], tokenAddress: string, signatureThreshold: string) => Promise<void>;
-  onGroupCreated: () => void; // Añade esta propiedad
+  onGroupCreated: () => void; // Agrega esta línea
 }
 
 const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup, onGroupCreated }) => {

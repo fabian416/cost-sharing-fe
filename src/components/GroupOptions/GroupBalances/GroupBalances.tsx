@@ -1,11 +1,11 @@
 import React from 'react';
-import styles from './GroupSection2.module.css';
+import styles from './GroupBalances.module.css';
 
-const GroupSection2 = ({ groupId }) => {
+const GroupSection2 = () => {
   return (
     <div className={styles.container}>
       <div className={styles.groupContainer}>
-        <h2 className={styles.subTitle}>Group {groupId} Section 2</h2>
+        <h2 className={styles.subTitle}>Group {} Section 2</h2>
         {/* Otros elementos específicos para GroupDetails */}
       </div>
     </div>
