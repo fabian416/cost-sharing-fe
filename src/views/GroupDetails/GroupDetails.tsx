@@ -4,6 +4,7 @@ import GroupOptions from '../../components/GroupOptions/GroupOptions';
 import GroupExpenses from '../../components/GroupOptions/GroupExpenses/GroupExpenses';
 import GroupBalances from '../../components/GroupOptions/GroupBalances/GroupBalances'
 import styles from './GroupDetails.module.css';
+import { getSimplifiedDebts } from '../../fireFunctions';
 
 const GroupDetails = () => {
   const { groupId, groupName } = useParams<{ groupId: string; groupName: string }>();

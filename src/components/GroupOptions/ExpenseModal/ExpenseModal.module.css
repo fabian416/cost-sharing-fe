@@ -1,0 +1,52 @@
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 20px;
+    width: 400px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .formGroup {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 16px;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  button[type="button"]:first-of-type {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  button[type="button"]:last-of-type {
+    background-color: #dc3545;
+    color: #fff;
+  }
+  
