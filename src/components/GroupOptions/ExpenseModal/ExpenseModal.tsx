@@ -9,7 +9,7 @@ interface ExpenseModalProps {
   groupMembers: string[];
 }
 
-const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers }) => {
+const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers = [] }) => {
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState('');
   const [sharedWith, setSharedWith] = useState<string[]>([]);
@@ -35,23 +35,45 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
       <form>
         <div className={styles.formGroup}>
           <label>Amount</label>
-          <input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
+          <input 
+            type="number" 
+            value={amount} 
+            onChange={(e) => setAmount(Number(e.target.value))} 
+          />
         </div>
         <div className={styles.formGroup}>
           <label>Description</label>
-          <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <input 
+            type="text" 
+            value={description} 
+            onChange={(e) => setDescription(e.target.value)} 
+          />
         </div>
         <div className={styles.formGroup}>
           <label>Shared With</label>
-          <select multiple value={sharedWith} onChange={handleSharedWithChange}>
+          <select 
+            multiple 
+            value={sharedWith} 
+            onChange={handleSharedWithChange}
+          >
             {groupMembers.map(member => (
               <option key={member} value={member}>{member}</option>
             ))}
           </select>
         </div>
         <div className={styles.formGroup}>
-          <button type="button" onClick={handleAddExpense}>Add</button>
-          <button type="button" onClick={handleClose}>Cancel</button>
+          <button 
+            type="button" 
+            onClick={handleAddExpense}
+          >
+            Add
+          </button>
+          <button 
+            type="button" 
+            onClick={handleClose}
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </Modal>
