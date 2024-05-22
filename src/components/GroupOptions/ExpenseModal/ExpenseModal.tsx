@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, } from 'react';
 import Modal from 'react-modal';
 import styles from './ExpenseModal.module.css';
 
@@ -7,15 +7,18 @@ interface ExpenseModalProps {
   handleClose: () => void;
   addExpense: (amount: number, description: string, sharedWith: string[]) => void;
   groupMembers: string[];
+  currentUser: string;
 }
 
-const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers = [] }) => {
+const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers = [], currentUser }) => {
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState('');
   const [sharedWith, setSharedWith] = useState<string[]>([]);
 
   const handleAddExpense = () => {
-    addExpense(amount, description, sharedWith);
+    // Agregar automáticamente la dirección del usuario actual
+    const finalSharedWith = [...sharedWith, currentUser];
+    addExpense(amount, description, finalSharedWith);
     handleClose();
   };
 
@@ -23,6 +26,9 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
     const selectedOptions = Array.from(event.target.selectedOptions, option => option.value);
     setSharedWith(selectedOptions);
   };
+
+  // Filtrar la dirección del usuario actual de la lista de miembros
+  const filteredGroupMembers = groupMembers.filter(member => member !== currentUser);
 
   return (
     <Modal
@@ -56,7 +62,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
             value={sharedWith} 
             onChange={handleSharedWithChange}
           >
-            {groupMembers.map(member => (
+            {filteredGroupMembers.map(member => (
               <option key={member} value={member}>{member}</option>
             ))}
           </select>

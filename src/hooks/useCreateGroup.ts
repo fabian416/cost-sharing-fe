@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 import { APPLICATION_CONFIGURATION } from '../consts/contracts';
-import { firestore } from '../main';
+import { firestore } from '../firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 
 export const useCreateGroup = () => {
