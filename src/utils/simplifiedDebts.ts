@@ -1,59 +1,63 @@
 import { firestore } from '../firebaseConfig';
-import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, writeBatch } from 'firebase/firestore';
 
 export const simplifyDebts = async (groupId: string) => {
-  console.log(`Simplifying debts for group: ${groupId}`);
   const groupRef = doc(firestore, 'groups', groupId);
   const expensesSnapshot = await getDocs(collection(groupRef, 'expenses'));
 
   const balances: { [key: string]: number } = {};
 
-  // Calculate balances of every member
+  // Calcular los balances de cada miembro
   expensesSnapshot.forEach(doc => {
     const expense = doc.data();
-    console.log('Processing expense: ', expense);
     if (!expense.settled) {
-      const share = expense.amount / expense.sharedWith.length;
-      expense.sharedWith.forEach((member: string) => {
-        if (!balances[member]) {
-          balances[member] = 0;
+      const { amount, sharedWith, paidBy } = expense;
+
+      // Dividir el monto entre los miembros compartidos
+      const sharePerPerson = amount / sharedWith.length;
+      
+      // Ajustar el balance para cada miembro compartido
+      sharedWith.forEach((member: string) => {
+        if (member !== paidBy) {
+          if (!balances[member]) {
+            balances[member] = 0;
+          }
+          balances[member] += sharePerPerson;
         }
-        balances[member] += share;
-        console.log(`Updated balance for ${member}: ${balances[member]}`);
       });
+
+      // Ajustar el balance para quien pagó
+      if (!balances[paidBy]) {
+        balances[paidBy] = 0;
+      }
+      balances[paidBy] -= amount;
     }
   });
 
   const debts = [];
-  const members = Object.keys(balances);
-  for (let i = 0; i < members.length; i++) {
-    for (let j = 0; j < members.length; j++) {
-      if (i !== j) {
-        const debtor = members[i];
-        const creditor = members[j];
-        const amount = balances[debtor] - balances[creditor];
-        if (amount > 0) {
-          debts.push({ debtor, creditor, amount });
-          console.log(`Debt calculated: ${debtor} owes ${creditor}: ${amount}`);
-        }
+  for (const [debtor, amount] of Object.entries(balances)) {
+    for (const [creditor, creditAmount] of Object.entries(balances)) {
+      if (debtor !== creditor && amount > 0 && creditAmount < 0) {
+        const debtAmount = Math.min(amount, -creditAmount);
+        debts.push({ debtor, creditor, amount: debtAmount });
+        balances[debtor] -= debtAmount;
+        balances[creditor] += debtAmount;
       }
     }
   }
 
-  console.log('Calculated Simplified Debts: ', debts);
-
-  // Delete all previous simplified debts
+  // Eliminar todas las deudas simplificadas anteriores
   const simplifiedDebtsSnapshot = await getDocs(collection(groupRef, 'simplifiedDebts'));
-  for (const doc of simplifiedDebtsSnapshot.docs) {
-    await deleteDoc(doc.ref);
-  }
-  console.log('Previous simplified debts deleted.');
+  const batch = writeBatch(firestore);
+  simplifiedDebtsSnapshot.forEach(doc => {
+    batch.delete(doc.ref);
+  });
 
-  // Save new simplified debts
-  for (const debt of debts) {
+  // Guardar las nuevas deudas simplificadas
+  debts.forEach(debt => {
     const debtRef = doc(collection(groupRef, 'simplifiedDebts'));
-    await setDoc(debtRef, debt);
-    console.log(`Debt saved: ${JSON.stringify(debt)}`);
-  }
-  console.log('Simplified Debts saved to Firestore');
+    batch.set(debtRef, debt);
+  });
+
+  await batch.commit();
 };
