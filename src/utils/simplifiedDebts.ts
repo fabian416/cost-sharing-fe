@@ -2,52 +2,58 @@ import { firestore } from '../firebaseConfig';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 export const simplifyDebts = async (groupId: string) => {
+  console.log(`Simplifying debts for group: ${groupId}`);
   const groupRef = doc(firestore, 'groups', groupId);
   const expensesSnapshot = await getDocs(collection(groupRef, 'expenses'));
 
   const balances: { [key: string]: number } = {};
 
-  // Calculate balances of every member 
+  // Calculate balances of every member
   expensesSnapshot.forEach(doc => {
     const expense = doc.data();
+    console.log('Processing expense: ', expense);
     if (!expense.settled) {
+      const share = expense.amount / expense.sharedWith.length;
       expense.sharedWith.forEach((member: string) => {
         if (!balances[member]) {
           balances[member] = 0;
         }
-        balances[member] += expense.amount / expense.sharedWith.length;
+        balances[member] += share;
+        console.log(`Updated balance for ${member}: ${balances[member]}`);
       });
     }
   });
 
   const debts = [];
-  for (const [debtor, amount] of Object.entries(balances)) {
-    for (const [creditor, creditAmount] of Object.entries(balances)) {
-      if (debtor !== creditor && amount > 0 && creditAmount < 0) {
-        const debtAmount = Math.min(amount, -creditAmount);
-        debts.push({ debtor, creditor, amount: debtAmount });
-        balances[debtor] -= debtAmount;
-        balances[creditor] += debtAmount;
+  const members = Object.keys(balances);
+  for (let i = 0; i < members.length; i++) {
+    for (let j = 0; j < members.length; j++) {
+      if (i !== j) {
+        const debtor = members[i];
+        const creditor = members[j];
+        const amount = balances[debtor] - balances[creditor];
+        if (amount > 0) {
+          debts.push({ debtor, creditor, amount });
+          console.log(`Debt calculated: ${debtor} owes ${creditor}: ${amount}`);
+        }
       }
     }
   }
 
+  console.log('Calculated Simplified Debts: ', debts);
+
   // Delete all previous simplified debts
   const simplifiedDebtsSnapshot = await getDocs(collection(groupRef, 'simplifiedDebts'));
-  simplifiedDebtsSnapshot.forEach(doc => {
-    deleteDoc(doc.ref);
-  });
+  for (const doc of simplifiedDebtsSnapshot.docs) {
+    await deleteDoc(doc.ref);
+  }
+  console.log('Previous simplified debts deleted.');
 
   // Save new simplified debts
-  debts.forEach(debt => {
+  for (const debt of debts) {
     const debtRef = doc(collection(groupRef, 'simplifiedDebts'));
-    setDoc(debtRef, debt);
-  });
-};
-
-export const fetchSimplifiedDebts = async (groupId: string) => {
-  const debtsCollectionRef = collection(firestore, 'groups', groupId, 'simplifiedDebts');
-  const debtsSnapshot = await getDocs(debtsCollectionRef);
-  const debts = debtsSnapshot.docs.map(doc => doc.data() as { debtor: string, creditor: string, amount: number });
-  return debts;
+    await setDoc(debtRef, debt);
+    console.log(`Debt saved: ${JSON.stringify(debt)}`);
+  }
+  console.log('Simplified Debts saved to Firestore');
 };

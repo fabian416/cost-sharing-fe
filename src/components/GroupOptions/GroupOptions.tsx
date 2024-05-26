@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import ExpenseModal from './ExpenseModal/ExpenseModal';
-import GroupBalances from './GroupBalances/GroupBalances'; // Importa el componente GroupBalances
 import { firestore } from '../../firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc } from 'firebase/firestore';
 import styles from './GroupOptions.module.css';
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 import { ethers } from 'ethers';
-import { simplifyDebts } from '../../utils/simplifiedDebts';
 
 interface GroupOptionsProps {
   groupId: string;
@@ -53,10 +51,20 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
 
   const handleAddExpense = async (amount: number, description: string, sharedWith: string[]) => {
     console.log(`Adding expense: ${amount}, ${description}, shared with: ${sharedWith}`);
-    // Lógica para añadir el gasto al backend o smart contract
-    // Llamar a la función de simplificación después de añadir el gasto
-    await simplifyDebts(groupId);
+    // Añadir el gasto a Firestore
+    const newExpense = {
+      amount,
+      description,
+      sharedWith,
+      paidBy: currentUser, // Agregar el campo paidBy
+      settled: false,
+      timestamp: new Date()
+    };
+    await addDoc(collection(firestore, 'groups', groupId, 'expenses'), newExpense);
+  
+    console.log('Expense added');
   };
+  
 
   return (
     <div className={styles.groupOptions}>
@@ -74,7 +82,6 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
           currentUser={currentUser} // Pasamos el usuario actual como prop
         />
       )}
-      <GroupBalances groupId={groupId} /> {/* Mostrar deudas simplificadas */}
     </div>
   );
 };
