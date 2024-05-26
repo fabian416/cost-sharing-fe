@@ -7,7 +7,7 @@ interface GroupModalProps {
   show: boolean;
   handleClose: () => void;
   createGroup: (groupName: string, members: string[], tokenAddress: string, signatureThreshold: string) => Promise<void>;
-  onGroupCreated: () => void; // Agrega esta línea
+  onGroupCreated: () => void;
 }
 
 const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup, onGroupCreated }) => {
@@ -45,7 +45,7 @@ const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup,
 
     const allMembers = [address, ...members].filter(Boolean) as string[];
     await createGroup(groupName, allMembers, tokenAddress, signatureThreshold);
-    onGroupCreated(); // Llama a esta función para actualizar la lista de grupos
+    onGroupCreated();
     handleModalClose();
   };
 

@@ -55,16 +55,15 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
     const newExpense = {
       amount,
       description,
+      paidBy: currentUser,
       sharedWith,
-      paidBy: currentUser, // Agregar el campo paidBy
       settled: false,
       timestamp: new Date()
     };
     await addDoc(collection(firestore, 'groups', groupId, 'expenses'), newExpense);
-  
-    console.log('Expense added');
+
+    console.log('Expense added to Firestore');
   };
-  
 
   return (
     <div className={styles.groupOptions}>
@@ -79,7 +78,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
           handleClose={handleCloseExpenseModal}
           addExpense={handleAddExpense}
           groupMembers={groupMembers}
-          currentUser={currentUser} // Pasamos el usuario actual como prop
+          paidBy={currentUser}
         />
       )}
     </div>

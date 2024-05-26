@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { firestore } from '../../../firebaseConfig';
-import { collection, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, DocumentData, QuerySnapshot, Timestamp } from 'firebase/firestore';
 import styles from './GroupBalances.module.css';
 
 interface GroupBalancesProps {
@@ -26,55 +26,57 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
   const [debts, setDebts] = useState<Debt[]>([]);
 
   useEffect(() => {
-    const fetchExpensesAndSimplifyDebts = async () => {
+    const fetchExpensesAndSimplifyDebts = () => {
       console.log(`Fetching expenses for group: ${groupId}`);
-      const expensesSnapshot = await getDocs(collection(firestore, 'groups', groupId, 'expenses'));
-      const balances: { [key: string]: number } = {};
+      const expensesRef = collection(firestore, 'groups', groupId, 'expenses');
+      onSnapshot(expensesRef, (snapshot: QuerySnapshot<DocumentData>) => {
+        const balances: { [key: string]: number } = {};
 
-      expensesSnapshot.forEach(doc => {
-        const data = doc.data();
-        const expense: Expense = {
-          amount: data.amount,
-          description: data.description,
-          paidBy: data.paidBy,
-          sharedWith: data.sharedWith,
-          settled: data.settled,
-          timestamp: data.timestamp instanceof Timestamp ? data.timestamp : Timestamp.fromDate(new Date(data.timestamp))
-        };
-        console.log('Processing expense: ', expense);
-        if (!expense.settled) {
-          const share = expense.amount / expense.sharedWith.length;
-          expense.sharedWith.forEach((member: string) => {
-            if (member !== expense.paidBy) {
-              if (!balances[member]) {
-                balances[member] = 0;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const expense: Expense = {
+            amount: data.amount,
+            description: data.description,
+            paidBy: data.paidBy,
+            sharedWith: data.sharedWith,
+            settled: data.settled,
+            timestamp: data.timestamp instanceof Timestamp ? data.timestamp : Timestamp.fromDate(new Date(data.timestamp))
+          };
+          console.log('Processing expense: ', expense);
+          if (!expense.settled) {
+            const share = expense.amount / expense.sharedWith.length;
+            expense.sharedWith.forEach((member: string) => {
+              if (member !== expense.paidBy) {
+                if (!balances[member]) {
+                  balances[member] = 0;
+                }
+                balances[member] -= share;
               }
-              balances[member] -= share;
+            });
+            if (!balances[expense.paidBy]) {
+              balances[expense.paidBy] = 0;
             }
-          });
-          if (!balances[expense.paidBy]) {
-            balances[expense.paidBy] = 0;
+            balances[expense.paidBy] += expense.amount;
           }
-          balances[expense.paidBy] += expense.amount;
+        });
+
+        console.log('Balances: ', balances);
+
+        const calculatedDebts: Debt[] = [];
+        for (const [debtor, debt] of Object.entries(balances)) {
+          for (const [creditor, credit] of Object.entries(balances)) {
+            if (debt < 0 && credit > 0) {
+              const amount = Math.min(-debt, credit);
+              calculatedDebts.push({ debtor, creditor, amount });
+              balances[debtor] += amount;
+              balances[creditor] -= amount;
+            }
+          }
         }
+
+        console.log('Calculated Simplified Debts: ', calculatedDebts);
+        setDebts(calculatedDebts);
       });
-
-      console.log('Balances: ', balances);
-
-      const calculatedDebts: Debt[] = [];
-      for (const [debtor, debt] of Object.entries(balances)) {
-        for (const [creditor, credit] of Object.entries(balances)) {
-          if (debt < 0 && credit > 0) {
-            const amount = Math.min(-debt, credit);
-            calculatedDebts.push({ debtor, creditor, amount });
-            balances[debtor] += amount;
-            balances[creditor] -= amount;
-          }
-        }
-      }
-
-      console.log('Calculated Simplified Debts: ', calculatedDebts);
-      setDebts(calculatedDebts);
     };
 
     fetchExpensesAndSimplifyDebts();

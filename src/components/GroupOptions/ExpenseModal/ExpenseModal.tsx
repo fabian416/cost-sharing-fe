@@ -1,4 +1,4 @@
-import React, { useState, } from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-modal';
 import styles from './ExpenseModal.module.css';
 
@@ -7,80 +7,86 @@ interface ExpenseModalProps {
   handleClose: () => void;
   addExpense: (amount: number, description: string, sharedWith: string[]) => void;
   groupMembers: string[];
-  currentUser: string;
+  paidBy: string; // Añadir la dirección de la persona que propone el gasto
 }
 
-const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers = [], currentUser }) => {
-  const [amount, setAmount] = useState(0);
+const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers, paidBy }) => {
+  const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [sharedWith, setSharedWith] = useState<string[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
-  const handleAddExpense = () => {
-    // Agregar automáticamente la dirección del usuario actual
-    const finalSharedWith = [...sharedWith, currentUser];
-    addExpense(amount, description, finalSharedWith);
-    handleClose();
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) { // Permitir solo números
+      setAmount(value);
+    }
   };
 
-  const handleSharedWithChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedOptions = Array.from(event.target.selectedOptions, option => option.value);
-    setSharedWith(selectedOptions);
+  const handleMemberSelect = (member: string) => {
+    if (selectedMembers.includes(member)) {
+      setSelectedMembers(selectedMembers.filter(m => m !== member));
+    } else {
+      setSelectedMembers([...selectedMembers, member]);
+    }
   };
 
-  // Filtrar la dirección del usuario actual de la lista de miembros
-  const filteredGroupMembers = groupMembers.filter(member => member !== currentUser);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (amount && description && selectedMembers.length > 0) {
+      addExpense(parseFloat(amount), description, selectedMembers);
+      handleClose();
+    } else {
+      alert('Please fill in all fields.');
+    }
+  };
 
   return (
     <Modal
       isOpen={show}
       onRequestClose={handleClose}
+      shouldCloseOnOverlayClick={false}
       className={styles.modal}
-      overlayClassName={styles.overlay}
+      overlayClassName={styles.modalOverlay}
     >
-      <h2>Add Expense</h2>
-      <form>
+      <div className={styles.modalHeader}>
+        <h2 className={styles.modalTitle}>Add Expense</h2>
+        <button className={styles.closeButton} onClick={handleClose}>×</button>
+      </div>
+      <form onSubmit={handleSubmit} className={styles.modalBody}>
         <div className={styles.formGroup}>
-          <label>Amount</label>
-          <input 
-            type="number" 
-            value={amount} 
-            onChange={(e) => setAmount(Number(e.target.value))} 
+          <label>Amount:</label>
+          <input
+            type="text"
+            value={amount}
+            onChange={handleAmountChange}
+            placeholder="Enter amount"
           />
         </div>
         <div className={styles.formGroup}>
-          <label>Description</label>
-          <input 
-            type="text" 
-            value={description} 
-            onChange={(e) => setDescription(e.target.value)} 
+          <label>Description:</label>
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter description"
           />
         </div>
         <div className={styles.formGroup}>
-          <label>Shared With</label>
-          <select 
-            multiple 
-            value={sharedWith} 
-            onChange={handleSharedWithChange}
-          >
-            {filteredGroupMembers.map(member => (
-              <option key={member} value={member}>{member}</option>
+          <label>Share With:</label>
+          <div className={styles.membersList}>
+            {groupMembers.filter(member => member !== paidBy).map((member, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`${styles.memberButton} ${selectedMembers.includes(member) ? styles.selected : ''}`}
+                onClick={() => handleMemberSelect(member)}
+              >
+                {member}
+              </button>
             ))}
-          </select>
+          </div>
         </div>
-        <div className={styles.formGroup}>
-          <button 
-            type="button" 
-            onClick={handleAddExpense}
-          >
-            Add
-          </button>
-          <button 
-            type="button" 
-            onClick={handleClose}
-          >
-            Cancel
-          </button>
-        </div>
+        <button type="submit" className={styles.addButton}>Add Expense</button>
       </form>
     </Modal>
   );
