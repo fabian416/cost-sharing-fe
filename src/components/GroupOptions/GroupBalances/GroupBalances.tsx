@@ -1,6 +1,5 @@
-// GroupBalances.tsx
 import React, { useEffect, useState } from 'react';
-import { firestore} from '../../../firebaseConfig';
+import { firestore } from '../../../firebaseConfig';
 import { collection, getDocs, Timestamp } from 'firebase/firestore';
 import styles from './GroupBalances.module.css';
 
@@ -33,15 +32,25 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
       const balances: { [key: string]: number } = {};
 
       expensesSnapshot.forEach(doc => {
-        const expense = doc.data() as Expense;
+        const data = doc.data();
+        const expense: Expense = {
+          amount: data.amount,
+          description: data.description,
+          paidBy: data.paidBy,
+          sharedWith: data.sharedWith,
+          settled: data.settled,
+          timestamp: data.timestamp instanceof Timestamp ? data.timestamp : Timestamp.fromDate(new Date(data.timestamp))
+        };
         console.log('Processing expense: ', expense);
         if (!expense.settled) {
           const share = expense.amount / expense.sharedWith.length;
           expense.sharedWith.forEach((member: string) => {
-            if (!balances[member]) {
-              balances[member] = 0;
+            if (member !== expense.paidBy) {
+              if (!balances[member]) {
+                balances[member] = 0;
+              }
+              balances[member] -= share;
             }
-            balances[member] -= share;
           });
           if (!balances[expense.paidBy]) {
             balances[expense.paidBy] = 0;

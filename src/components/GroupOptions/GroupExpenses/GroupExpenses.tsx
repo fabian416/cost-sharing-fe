@@ -1,7 +1,6 @@
-// GroupExpenses.tsx
 import React, { useState, useEffect } from 'react';
-import { firestore } from '../../../firebaseConfig';
-import { collection, getDocs, Timestamp } from 'firebase/firestore';
+import { firestore } from '../../../firebaseConfig'; // Asegúrate de importar Timestamp
+import { collection, getDocs, Timestamp} from 'firebase/firestore';
 import styles from './GroupExpenses.module.css';
 
 interface GroupExpensesProps {
@@ -23,7 +22,13 @@ const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
   useEffect(() => {
     const fetchExpenses = async () => {
       const expensesSnapshot = await getDocs(collection(firestore, 'groups', groupId, 'expenses'));
-      const fetchedExpenses = expensesSnapshot.docs.map(doc => doc.data() as Expense);
+      const fetchedExpenses = expensesSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          timestamp: data.timestamp instanceof Timestamp ? data.timestamp : Timestamp.fromDate(new Date(data.timestamp))
+        } as Expense;
+      });
       setExpenses(fetchedExpenses);
     };
 
@@ -37,7 +42,7 @@ const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
         <ul className={styles.expensesList}>
           {expenses.map((expense, index) => (
             <li key={index}>
-              {expense.description}: {expense.amount} paid by {expense.paidBy}, shared with {expense.sharedWith.join(', ')}
+              {expense.description}: {expense.amount} paid by {expense.paidBy}, shared with {expense.sharedWith.filter(member => member !== expense.paidBy).join(', ')}
             </li>
           ))}
         </ul>
