@@ -44,19 +44,19 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
           };
           console.log('Processing expense: ', expense);
           if (!expense.settled) {
-            const share = expense.amount / (expense.sharedWith.length + 1); // +1 para incluir el pagador
+            const share = expense.amount / expense.sharedWith.length;
             expense.sharedWith.forEach((member: string) => {
               if (member !== expense.paidBy) {
                 if (!balances[member]) {
                   balances[member] = 0;
                 }
-                balances[member] -= share; // El miembro compartido debe una parte del gasto
+                balances[member] -= share;
               }
             });
             if (!balances[expense.paidBy]) {
               balances[expense.paidBy] = 0;
             }
-            balances[expense.paidBy] += expense.amount - (share * expense.sharedWith.length); // El pagador asume la parte restante
+            balances[expense.paidBy] += expense.amount;
           }
         });
 
@@ -64,16 +64,12 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
 
         const calculatedDebts: Debt[] = [];
         for (const [debtor, debt] of Object.entries(balances)) {
-          if (debt < 0) {
-            for (const [creditor, credit] of Object.entries(balances)) {
-              if (credit > 0) {
-                const amount = Math.min(-debt, credit);
-                if (amount > 0) {
-                  calculatedDebts.push({ debtor, creditor, amount });
-                  balances[debtor] += amount;
-                  balances[creditor] -= amount;
-                }
-              }
+          for (const [creditor, credit] of Object.entries(balances)) {
+            if (debt < 0 && credit > 0) {
+              const amount = Math.min(-debt, credit);
+              calculatedDebts.push({ debtor, creditor, amount });
+              balances[debtor] += amount;
+              balances[creditor] -= amount;
             }
           }
         }
@@ -90,10 +86,10 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
     <div className={styles.container}>
       <div className={styles.groupContainer}>
         <h2 className={styles.subTitle}>Simplified Debts</h2>
-        <ul>
+        <ul className={styles.debtsList}>
           {debts.map((debt, index) => (
-            <li key={index}>
-              {debt.debtor} owes {debt.creditor}: {debt.amount}
+            <li key={index} className={styles.debtCard}>
+              <span className={styles.debtor}>{debt.debtor}</span> owes <span className={styles.creditor}>{debt.creditor}</span>: <span className={styles.amount}>${debt.amount}</span>
             </li>
           ))}
         </ul>

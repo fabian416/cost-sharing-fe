@@ -45,8 +45,15 @@ const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
         <h2 className={styles.subTitle}>Group Expenses</h2>
         <ul className={styles.expensesList}>
           {expenses.map((expense, index) => (
-            <li key={index}>
-              {expense.description}: {expense.amount} paid by {expense.paidBy}, shared with {expense.sharedWith.join(', ')}
+            <li key={index} className={styles.expenseItem}>
+              <div className={styles.expenseHeader}>
+                <span className={styles.expenseDescription}>{expense.description}</span>
+                <span className={styles.expenseAmount}>${expense.amount}</span>
+              </div>
+              <div className={styles.expenseDetails}>
+                <span>Paid by: {expense.paidBy}</span>
+                <span>Shared with: {expense.sharedWith.join(', ')}</span>
+              </div>
             </li>
           ))}
         </ul>
