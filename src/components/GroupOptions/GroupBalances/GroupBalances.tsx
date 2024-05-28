@@ -44,19 +44,22 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
           };
           console.log('Processing expense: ', expense);
           if (!expense.settled) {
-            const share = expense.amount / (expense.sharedWith.length + 1); // +1 para incluir el pagador
+            const totalParticipants = expense.sharedWith.length + 1; // Incluye al pagador
+            const share = expense.amount / totalParticipants;
+            
+            // Ajustar la deuda de los miembros compartidos
             expense.sharedWith.forEach((member: string) => {
-              if (member !== expense.paidBy) {
-                if (!balances[member]) {
-                  balances[member] = 0;
-                }
-                balances[member] -= share; // El miembro compartido debe una parte del gasto
+              if (!balances[member]) {
+                balances[member] = 0;
               }
+              balances[member] -= share; // Cada miembro debe una parte del gasto
             });
+
+            // Ajustar la deuda del pagador
             if (!balances[expense.paidBy]) {
               balances[expense.paidBy] = 0;
             }
-            balances[expense.paidBy] += expense.amount - (share * expense.sharedWith.length); // El pagador asume la parte restante
+            balances[expense.paidBy] += share * expense.sharedWith.length; // El pagador asume la parte restante
           }
         });
 
@@ -93,7 +96,7 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
         <ul className={styles.debtsList}>
           {debts.map((debt, index) => (
             <li key={index} className={styles.debtCard}>
-              <span className={styles.debtor}>{debt.debtor}</span> owes <span className={styles.creditor}>{debt.creditor}</span>: <span className={styles.amount}>${debt.amount}</span>
+              <span className={styles.debtor}>{debt.debtor}</span> owes <span className={styles.creditor}>{debt.creditor}</span>: <span className={styles.amount}>${debt.amount.toFixed(2)}</span>
             </li>
           ))}
         </ul>
