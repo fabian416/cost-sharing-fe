@@ -1,7 +1,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 import styles from './SettleModal.module.css';
-import { addDoc, collection, updateDoc, doc, arrayUnion } from 'firebase/firestore';
+import { addDoc, updateDoc, doc, arrayUnion, collection } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
 import { ethers } from 'ethers';
 import { useWeb3ModalProvider } from "@web3modal/ethers5/react";
@@ -19,11 +19,23 @@ interface SettleModalProps {
   debts: Debt[];
   currentUser: string;
   groupMembers: string[];
+  hasActiveProposal: boolean;
+  userHasSigned: boolean;
+  settleProposalId: string;
 }
 
 Modal.setAppElement('#root');
 
-const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, debts, currentUser }) => {
+const SettleModal: React.FC<SettleModalProps> = ({
+  show,
+  handleClose,
+  groupId,
+  debts,
+  currentUser,
+  hasActiveProposal,
+  userHasSigned,
+  settleProposalId
+}) => {
   const { walletProvider } = useWeb3ModalProvider();
 
   const handleProposeSettle = async () => {
@@ -31,15 +43,6 @@ const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, d
       console.error('No wallet provider found');
       return;
     }
-
-    const settleProposal = {
-      groupId,
-      debts,
-      proposer: currentUser,
-      signatures: []
-    };
-
-    const docRef = await addDoc(collection(firestore, 'groups', groupId, 'settleProposals'), settleProposal);
 
     const formattedDebts = debts.map(debt => [
       ethers.utils.getAddress(debt.debtor),
@@ -56,11 +59,23 @@ const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, d
     const signer = ethersProvider.getSigner();
     const signature = await signer.signMessage(ethers.utils.arrayify(actionHash));
 
-    await updateDoc(doc(firestore, 'groups', groupId, 'settleProposals', docRef.id), {
-      signatures: arrayUnion({ signer: currentUser, signature })
-    });
+    if (!hasActiveProposal) {
+      const settleProposal = {
+        groupId,
+        debts,
+        proposer: currentUser,
+        signatures: [{ signer: currentUser, signature }]
+      };
 
-    console.log('Settle proposal created and signed successfully');
+      await addDoc(collection(firestore, 'groups', groupId, 'settleProposals'), settleProposal);
+      console.log('Settle proposal created and signed successfully');
+    } else if (!userHasSigned) {
+      await updateDoc(doc(firestore, 'groups', groupId, 'settleProposals', settleProposalId), {
+        signatures: arrayUnion({ signer: currentUser, signature })
+      });
+      console.log('Signed settle proposal successfully');
+    }
+
     handleClose();
   };
 
@@ -83,8 +98,8 @@ const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, d
             </li>
           ))}
         </ul>
-        <button className={styles.proposeButton} onClick={handleProposeSettle}>
-          Propose Settle
+        <button className={styles.proposeButton} onClick={handleProposeSettle} disabled={hasActiveProposal && userHasSigned}>
+          {hasActiveProposal ? (userHasSigned ? 'Signed' : 'Sign') : 'Propose Settle'}
         </button>
       </div>
     </Modal>

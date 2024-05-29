@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExpenseModal from './ExpenseModal/ExpenseModal';
 import SettleModal from './SettleModal/SettleModal';
 import { firestore } from '../../firebaseConfig';
-import { doc, getDoc, collection, addDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, onSnapshot } from 'firebase/firestore';
 import styles from './GroupOptions.module.css';
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 import { ethers } from 'ethers';
@@ -12,18 +12,27 @@ interface Debt {
   creditor: string;
   amount: number;
 }
+
 interface GroupOptionsProps {
   groupId: string;
   groupName: string;
 }
 
+interface Signature {
+  signer: string;
+  signature: string;
+}
+
 const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [showSettleModal, setShowSettleModal] = useState(false); // Estado para mostrar el SettleModal
+  const [showSettleModal, setShowSettleModal] = useState(false);
   const [groupMembers, setGroupMembers] = useState<string[]>([]);
-  const [debts, setDebts] = useState<Debt[]>([]); // Estado para las deudas simplificadas
-  const { walletProvider } = useWeb3ModalProvider();
+  const [debts, setDebts] = useState<Debt[]>([]);
   const [currentUser, setCurrentUser] = useState<string>('');
+  const [hasActiveProposal, setHasActiveProposal] = useState<boolean>(false);
+  const [userHasSigned, setUserHasSigned] = useState<boolean>(false);
+  const [settleProposalId, setSettleProposalId] = useState<string>('');
+  const { walletProvider } = useWeb3ModalProvider();
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -54,15 +63,41 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
     fetchGroupMembers();
   }, [groupId]);
 
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(firestore, 'groups', groupId, 'settleProposals'), (snapshot) => {
+      if (!snapshot.empty) {
+        const proposalDoc = snapshot.docs[0];
+        const proposalData = proposalDoc.data();
+
+        setHasActiveProposal(true);
+        setSettleProposalId(proposalDoc.id);
+
+        if (proposalData.signatures.some((sig: Signature) => sig.signer === currentUser)) {
+          setUserHasSigned(true);
+        } else {
+          setUserHasSigned(false);
+        }
+      } else {
+        setHasActiveProposal(false);
+        setUserHasSigned(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [groupId, currentUser]);
+
+
   const handleOpenExpenseModal = () => setShowExpenseModal(true);
   const handleCloseExpenseModal = () => setShowExpenseModal(false);
 
-  const handleOpenSettleModal = () => setShowSettleModal(true); // Abrir el SettleModal
-  const handleCloseSettleModal = () => setShowSettleModal(false); // Cerrar el SettleModal
+  const handleOpenSettleModal = () => {
+    if (!hasActiveProposal || !userHasSigned) {
+      setShowSettleModal(true);
+    }
+  };
+  const handleCloseSettleModal = () => setShowSettleModal(false);
 
   const handleAddExpense = async (amount: number, description: string, sharedWith: string[]) => {
-    console.log(`Adding expense: ${amount}, ${description}, shared with: ${sharedWith}`);
-    // Añadir el gasto a Firestore
     const newExpense = {
       amount,
       description,
@@ -72,21 +107,16 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
       timestamp: new Date()
     };
     await addDoc(collection(firestore, 'groups', groupId, 'expenses'), newExpense);
-
-    console.log('Expense added to Firestore');
   };
-
-  // Calcula las deudas simplificadas aquí y guarda el resultado en el estado `debts`
-  useEffect(() => {
-    // Aquí calculas las deudas simplificadas y las guardas en `debts`
-  }, [groupId]);
 
   return (
     <div className={styles.groupOptions}>
       <h1 className={styles.title}>{groupName} Options</h1>
       <div className={styles.buttonsContainer}>
         <button className={`${styles.button} ${styles.addExpense}`} onClick={handleOpenExpenseModal}>Add Expense</button>
-        <button className={`${styles.button} ${styles.settleUp}`} onClick={handleOpenSettleModal}>Settle up</button> {/* Botón para abrir el SettleModal */}
+        <button className={`${styles.button} ${styles.settleUp}`} onClick={handleOpenSettleModal}>
+          {hasActiveProposal ? (userHasSigned ? 'Signed' : 'Sign') : 'Settle up'}
+        </button>
       </div>
       {showExpenseModal && (
         <ExpenseModal
@@ -104,7 +134,10 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
           groupId={groupId}
           debts={debts}
           currentUser={currentUser}
-          groupMembers={groupMembers} // Pasa los miembros del grupo al SettleModal
+          groupMembers={groupMembers}
+          hasActiveProposal={hasActiveProposal}
+          userHasSigned={userHasSigned}
+          settleProposalId={settleProposalId}
         />
       )}
     </div>
