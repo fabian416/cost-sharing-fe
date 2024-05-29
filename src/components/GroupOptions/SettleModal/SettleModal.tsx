@@ -1,13 +1,10 @@
 import React from 'react';
+import Modal from 'react-modal';
 import styles from './SettleModal.module.css';
 import { addDoc, collection, updateDoc, doc, arrayUnion } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
 import { ethers } from 'ethers';
 import { useWeb3ModalProvider } from "@web3modal/ethers5/react";
-import Modal from 'react-modal';
-
-// Configura el elemento principal de la aplicación para React Modal
-Modal.setAppElement('#root');
 
 interface Debt {
   debtor: string;
@@ -24,6 +21,8 @@ interface SettleModalProps {
   groupMembers: string[];
 }
 
+Modal.setAppElement('#root');
+
 const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, debts, currentUser }) => {
   const { walletProvider } = useWeb3ModalProvider();
 
@@ -33,7 +32,6 @@ const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, d
       return;
     }
 
-    // Crear la propuesta de settle
     const settleProposal = {
       groupId,
       debts,
@@ -51,7 +49,7 @@ const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, d
 
     const actionHash = ethers.utils.solidityKeccak256(
       ['bytes32', 'tuple(address,address,uint256)[]', 'string'],
-      [ethers.utils.formatBytes32String(groupId), formattedDebts, 'settleDebts']
+      [ethers.utils.id(groupId), formattedDebts, 'settleDebts']
     );
 
     const ethersProvider = new ethers.providers.Web3Provider(walletProvider as ethers.providers.ExternalProvider);
@@ -78,9 +76,9 @@ const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, d
         <button className={styles.closeButton} onClick={handleClose}>×</button>
       </div>
       <div className={styles.modalBody}>
-        <ul>
+        <ul className={styles.debtsList}>
           {debts.map((debt, index) => (
-            <li key={index}>
+            <li key={index} className={styles.debtItem}>
               {debt.debtor} owes {debt.creditor}: ${debt.amount.toFixed(2)}
             </li>
           ))}
@@ -94,4 +92,3 @@ const SettleModal: React.FC<SettleModalProps> = ({ show, handleClose, groupId, d
 };
 
 export default SettleModal;
-
