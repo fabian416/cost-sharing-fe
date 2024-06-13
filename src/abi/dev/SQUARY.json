@@ -214,6 +214,52 @@
         "type": "bytes32"
       },
       {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "debtor",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "creditor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct SquaryPolygonTest.Debt[]",
+        "name": "debts",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateActionHash",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "groupId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "uint256",
         "name": "newThreshold",
         "type": "uint256"
@@ -307,24 +353,10 @@
         "internalType": "address[]",
         "name": "members",
         "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "groupId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getGroupThreshold",
-    "outputs": [
+      },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "nonce",
         "type": "uint256"
       }
     ],
@@ -358,6 +390,49 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "groupId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getNonce",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "actionHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      }
+    ],
+    "name": "getSigner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -369,6 +444,19 @@
         "internalType": "bytes32[]",
         "name": "",
         "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "groupCounter",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -462,25 +550,6 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
-      }
-    ],
-    "name": "nonces",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
       },
       {
         "internalType": "uint256",
@@ -557,7 +626,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct SquaryV2.Debt[]",
+        "internalType": "struct SquaryPolygonTest.Debt[]",
         "name": "debts",
         "type": "tuple[]"
       },

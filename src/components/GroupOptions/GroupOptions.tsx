@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpenseModal from './ExpenseModal/ExpenseModal';
 import SettleModal from './SettleModal/SettleModal';
 import { firestore } from '../../firebaseConfig';
-import { doc, getDoc, collection, addDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, onSnapshot, setDoc, Timestamp } from 'firebase/firestore';
 import styles from './GroupOptions.module.css';
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
-import { ethers } from 'ethers';
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers5/react';
+import { fetchGroupDetails } from './contractInteractions';
+import { providers } from 'ethers';
 
 interface Debt {
   debtor: string;
@@ -23,6 +24,15 @@ interface Signature {
   signature: string;
 }
 
+interface Expense {
+  amount: number;
+  description: string;
+  paidBy: string;
+  sharedWith: string[];
+  settled: boolean;
+  timestamp: Timestamp;
+}
+
 const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showSettleModal, setShowSettleModal] = useState(false);
@@ -33,19 +43,13 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
   const [userHasSigned, setUserHasSigned] = useState<boolean>(false);
   const [settleProposalId, setSettleProposalId] = useState<string>('');
   const { walletProvider } = useWeb3ModalProvider();
+  const { address } = useWeb3ModalAccount();
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      if (walletProvider) {
-        const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
-        const signer = ethersProvider.getSigner();
-        const address = await signer.getAddress();
-        setCurrentUser(address);
-      }
-    };
-
-    fetchCurrentUser();
-  }, [walletProvider]);
+    if (address) {
+      setCurrentUser(address);
+    }
+  }, [address]);
 
   useEffect(() => {
     const fetchGroupMembers = async () => {
@@ -61,6 +65,69 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
     };
 
     fetchGroupMembers();
+  }, [groupId]);
+
+  useEffect(() => {
+    const fetchDebts = () => {
+      const expensesRef = collection(firestore, 'groups', groupId, 'expenses');
+      onSnapshot(expensesRef, (snapshot) => {
+        const balances: { [key: string]: number } = {};
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const expense: Expense = {
+            amount: data.amount,
+            description: data.description,
+            paidBy: data.paidBy,
+            sharedWith: data.sharedWith,
+            settled: data.settled,
+            timestamp: data.timestamp
+          };
+
+          if (!expense.settled) {
+            const totalParticipants = expense.sharedWith.length + 1; // Incluye al pagador
+            const share = expense.amount / totalParticipants;
+
+            // Ajustar la deuda de los miembros compartidos
+            expense.sharedWith.forEach((member: string) => {
+              if (!balances[member]) {
+                balances[member] = 0;
+              }
+              balances[member] -= share; // Cada miembro debe una parte del gasto
+            });
+
+            // Ajustar la deuda del pagador
+            if (!balances[expense.paidBy]) {
+              balances[expense.paidBy] = 0;
+            }
+            balances[expense.paidBy] += share * expense.sharedWith.length; // El pagador asume la parte restante
+          }
+        });
+
+        const calculatedDebts: Debt[] = [];
+        for (const [debtor, debt] of Object.entries(balances)) {
+          if (debt < 0) {
+            for (const [creditor, credit] of Object.entries(balances)) {
+              if (credit > 0) {
+                const amount = Math.min(-debt, credit);
+                if (amount > 0) {
+                  calculatedDebts.push({ debtor, creditor, amount });
+                  balances[debtor] += amount;
+                  balances[creditor] -= amount;
+                }
+              }
+            }
+          }
+        }
+
+        setDebts(calculatedDebts);
+
+        // Almacenar las deudas simplificadas en Firestore
+        setDoc(doc(firestore, 'groups', groupId), { debts: calculatedDebts }, { merge: true });
+      });
+    };
+
+    fetchDebts();
   }, [groupId]);
 
   useEffect(() => {
@@ -86,6 +153,18 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
     return () => unsubscribe();
   }, [groupId, currentUser]);
 
+  // Llamar a la función para obtener los detalles del grupo desde el contrato inteligente
+  useEffect(() => {
+    const verifyGroupMembers = async () => {
+      const details = await fetchGroupDetails(groupId, walletProvider as providers.ExternalProvider);
+      if (details) {
+        console.log('Members from contract:', details.members);
+        console.log('Members from Firestore:', groupMembers);
+      }
+    };
+
+    verifyGroupMembers();
+  }, [groupId, groupMembers, walletProvider]);
 
   const handleOpenExpenseModal = () => setShowExpenseModal(true);
   const handleCloseExpenseModal = () => setShowExpenseModal(false);

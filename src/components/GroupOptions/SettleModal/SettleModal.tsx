@@ -1,15 +1,20 @@
-import React from 'react';
 import Modal from 'react-modal';
 import styles from './SettleModal.module.css';
-import { addDoc, updateDoc, doc, arrayUnion, collection } from 'firebase/firestore';
+import { addDoc, updateDoc, doc, arrayUnion, getDoc, collection } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
-import { ethers } from 'ethers';
-import { useWeb3ModalProvider } from "@web3modal/ethers5/react";
+import { BigNumber, ethers } from 'ethers';
+import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { APPLICATION_CONFIGURATION } from '../../../consts/contracts';
 
 interface Debt {
   debtor: string;
   creditor: string;
-  amount: number;
+  amount: BigNumber;
+}
+
+interface Signature {
+  signer: string;
+  signature: string;
 }
 
 interface SettleModalProps {
@@ -18,7 +23,6 @@ interface SettleModalProps {
   groupId: string;
   debts: Debt[];
   currentUser: string;
-  groupMembers: string[];
   hasActiveProposal: boolean;
   userHasSigned: boolean;
   settleProposalId: string;
@@ -44,20 +48,59 @@ const SettleModal: React.FC<SettleModalProps> = ({
       return;
     }
 
-    const formattedDebts = debts.map(debt => [
-      ethers.utils.getAddress(debt.debtor),
-      ethers.utils.getAddress(debt.creditor),
-      ethers.utils.parseUnits(debt.amount.toString(), 18).toString()
-    ]);
-
-    const actionHash = ethers.utils.solidityKeccak256(
-      ['bytes32', 'tuple(address,address,uint256)[]', 'string'],
-      [ethers.utils.id(groupId), formattedDebts, 'settleDebts']
-    );
-
     const ethersProvider = new ethers.providers.Web3Provider(walletProvider as ethers.providers.ExternalProvider);
     const signer = ethersProvider.getSigner();
-    const signature = await signer.signMessage(ethers.utils.arrayify(actionHash));
+    const contract = new ethers.Contract(
+      APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
+      APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi,
+      signer
+    );
+
+    const isMember = await contract.isMember(groupId, currentUser);
+    if (!isMember) {
+      console.error('Current user is not a member of the group');
+      return;
+    }
+
+    const group = await contract.groups(groupId);
+    const groupNonce = group.nonce;
+
+    const formattedDebts = debts.map(debt => ({
+      debtor: ethers.utils.getAddress(debt.debtor),
+      creditor: ethers.utils.getAddress(debt.creditor),
+      amount: ethers.utils.parseUnits(debt.amount.toString(), 18)
+    }));
+
+    const calculateActionHash = (groupId: string, debts: Debt[], nonce: BigNumber) => {
+      let hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['bytes32'], [groupId]));
+      for (let debt of debts) {
+        hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
+          ['bytes32', 'address', 'address', 'uint256'],
+          [hash, debt.debtor, debt.creditor, debt.amount]
+        ));
+      }
+      return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
+        ['bytes32', 'string', 'uint256'],
+        [hash, 'settleDebts', nonce]
+      ));
+    };
+
+    const actionHashScript = calculateActionHash(groupId, formattedDebts, groupNonce);
+    const actionHashContract = await contract.calculateActionHash(groupId, formattedDebts, groupNonce);
+    console.log("action hash script:", actionHashScript);
+    console.log("Action hash contract:", actionHashContract);
+    if (actionHashScript !== actionHashContract) {
+      throw new Error("Hashes do not match");
+    }
+
+    const signature = await signer.signMessage(ethers.utils.arrayify(actionHashScript));
+
+    console.log('Group ID:', groupId);
+    console.log('Formatted Debts:', formattedDebts);
+    console.log('Nonce:', groupNonce);
+    console.log('Action Hash Script:', actionHashScript);
+    console.log('Action Hash Contract:', actionHashContract);
+    console.log('Signature:', signature);
 
     if (!hasActiveProposal) {
       const settleProposal = {
@@ -70,9 +113,27 @@ const SettleModal: React.FC<SettleModalProps> = ({
       await addDoc(collection(firestore, 'groups', groupId, 'settleProposals'), settleProposal);
       console.log('Settle proposal created and signed successfully');
     } else if (!userHasSigned) {
-      await updateDoc(doc(firestore, 'groups', groupId, 'settleProposals', settleProposalId), {
+      const proposalRef = doc(firestore, 'groups', groupId, 'settleProposals', settleProposalId);
+      await updateDoc(proposalRef, {
         signatures: arrayUnion({ signer: currentUser, signature })
       });
+
+      const groupDoc = await getDoc(doc(firestore, 'groups', groupId));
+      const groupData = groupDoc.data();
+      const signatureThreshold = groupData?.signatureThreshold;
+
+      const updatedProposalSnap = await getDoc(proposalRef);
+      const updatedProposalData = updatedProposalSnap.data();
+      if (updatedProposalData && updatedProposalData.signatures.length >= signatureThreshold) {
+        console.log('Signatures:', updatedProposalData.signatures);
+        await contract.settleDebtsWithSignatures(
+          groupId,
+          formattedDebts,
+          updatedProposalData.signatures.map((sig: Signature) => sig.signature)
+        );
+        console.log('Transaction completed successfully');
+      }
+
       console.log('Signed settle proposal successfully');
     }
 
