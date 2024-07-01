@@ -3,7 +3,7 @@ import DEV_SQUARY_ABI from "../../src/abi/dev/SQUARY.json"
 const DEVELOPMENT_CONFIGURATION = {
     contracts: {
       SQUARY_CONTRACT: {
-        address: "0x4E718B817769a44559628EE3bE8B15D19A116629", // AMOY address
+        address: "0x3525566E98AF1593E3A5EA92383585e5F3d9ec64", // BASE address
         abi: DEV_SQUARY_ABI,
       }
     },
@@ -21,6 +21,13 @@ const DEVELOPMENT_CONFIGURATION = {
       currency: "Matic",
       explorerUrl: "https://polygon-mainnet.infura.io",
       rpcUrl: "https://polygon-mainnet.infura.io"
+    },
+    baseTestnet: {
+      chainId: 84532,
+      name: "Base Testnet",
+      currency: "BASE",
+      explorerUrl: "https://sepolia.basescan.org/",
+      rpcUrl: "https://api.developer.coinbase.com/rpc/v1/base-sepolia/aOcbTxSy4UW-rAet6Qc7EQg3cM_enXfH"
     }
   };
 

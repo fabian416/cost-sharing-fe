@@ -6,7 +6,7 @@ import App from "./App";
 import { APPLICATION_CONFIGURATION } from "./consts/contracts";
 
 const projectId = "4d378fa56130355ea47ae76070a0c491";
-const { chainAmoy, chainPolygon} = APPLICATION_CONFIGURATION;
+const { chainAmoy, chainPolygon, baseTestnet} = APPLICATION_CONFIGURATION;
 
 const metadata = {
   name: "Squary",
@@ -26,7 +26,7 @@ createWeb3Modal({
     
   },
   ethersConfig: defaultConfig({ metadata }),
-  chains: [chainAmoy, chainPolygon],
+  chains: [chainAmoy, chainPolygon, baseTestnet],
   projectId,
   enableAnalytics: true,
 });
