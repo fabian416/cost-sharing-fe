@@ -1,6 +1,6 @@
 import Modal from 'react-modal';
 import styles from './SettleModal.module.css';
-import { addDoc, updateDoc, doc, arrayUnion, getDoc, collection } from 'firebase/firestore';
+import { addDoc, updateDoc, doc, arrayUnion, getDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
 import { BigNumber, ethers } from 'ethers';
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
@@ -73,7 +73,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
 
     const calculateActionHash = (groupId: string, debts: Debt[], nonce: BigNumber) => {
       let hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['bytes32'], [groupId]));
-      for (let debt of debts) {
+      for (const debt of debts) {
         hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
           ['bytes32', 'address', 'address', 'uint256'],
           [hash, debt.debtor, debt.creditor, debt.amount]
@@ -132,6 +132,23 @@ const SettleModal: React.FC<SettleModalProps> = ({
           updatedProposalData.signatures.map((sig: Signature) => sig.signature)
         );
         console.log('Transaction completed successfully');
+
+        // Marcar las expenses como settled en Firestore
+        const expensesRef = collection(firestore, 'groups', groupId, 'expenses');
+        const snapshot = await getDocs(expensesRef);
+
+        const batch = writeBatch(firestore);
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (!data.settled) {
+            const expenseRef = doc.ref;
+            batch.update(expenseRef, { settled: true });
+          }
+        });
+
+        await batch.commit();
+        console.log("Expenses marked as settled successfully");
       }
 
       console.log('Signed settle proposal successfully');
@@ -155,7 +172,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
         <ul className={styles.debtsList}>
           {debts.map((debt, index) => (
             <li key={index} className={styles.debtItem}>
-              {debt.debtor} owes {debt.creditor}: ${debt.amount.toFixed(2)}
+              {debt.debtor} owes {debt.creditor}: ${debt.amount.toNumber().toFixed(2)}
             </li>
           ))}
         </ul>
