@@ -9,7 +9,7 @@ import { APPLICATION_CONFIGURATION } from '../../../consts/contracts';
 interface Debt {
   debtor: string;
   creditor: string;
-  amount: BigNumber;
+  amount: number; // Usar number en lugar de BigNumber
 }
 
 interface Signature {
@@ -65,13 +65,14 @@ const SettleModal: React.FC<SettleModalProps> = ({
     const group = await contract.groups(groupId);
     const groupNonce = group.nonce;
 
+    // Convertir las deudas a BigNumber usando ethers.utils.parseUnits
     const formattedDebts = debts.map(debt => ({
       debtor: ethers.utils.getAddress(debt.debtor),
       creditor: ethers.utils.getAddress(debt.creditor),
       amount: ethers.utils.parseUnits(debt.amount.toString(), 18)
     }));
 
-    const calculateActionHash = (groupId: string, debts: Debt[], nonce: BigNumber) => {
+    const calculateActionHash = (groupId: string, debts: typeof formattedDebts, nonce: BigNumber) => {
       let hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['bytes32'], [groupId]));
       for (const debt of debts) {
         hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
@@ -105,7 +106,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
     if (!hasActiveProposal) {
       const settleProposal = {
         groupId,
-        debts,
+        debts: formattedDebts, // Asegúrate de que se usen las deudas formateadas
         proposer: currentUser,
         signatures: [{ signer: currentUser, signature }]
       };
@@ -172,7 +173,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
         <ul className={styles.debtsList}>
           {debts.map((debt, index) => (
             <li key={index} className={styles.debtItem}>
-              {debt.debtor} owes {debt.creditor}: ${debt.amount.toNumber().toFixed(2)}
+              {debt.debtor} owes {debt.creditor}: ${debt.amount.toFixed(2)} {/* Asegúrate de que debt.amount sea un número */}
             </li>
           ))}
         </ul>
