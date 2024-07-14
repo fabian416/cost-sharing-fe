@@ -69,7 +69,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
     const formattedDebts = debts.map(debt => ({
       debtor: ethers.utils.getAddress(debt.debtor),
       creditor: ethers.utils.getAddress(debt.creditor),
-      amount: ethers.utils.parseUnits(debt.amount.toString(), 18)
+      amount: ethers.utils.parseUnits(debt.amount.toString(), 18).toString() // Convertir a cadena antes de guardar
     }));
 
     const calculateActionHash = (groupId: string, debts: typeof formattedDebts, nonce: BigNumber) => {
@@ -77,7 +77,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
       for (const debt of debts) {
         hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
           ['bytes32', 'address', 'address', 'uint256'],
-          [hash, debt.debtor, debt.creditor, debt.amount]
+          [hash, debt.debtor, debt.creditor, BigNumber.from(debt.amount)]
         ));
       }
       return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
@@ -186,4 +186,3 @@ const SettleModal: React.FC<SettleModalProps> = ({
 };
 
 export default SettleModal;
-
