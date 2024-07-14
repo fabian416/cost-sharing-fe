@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { firestore } from '../../../firebaseConfig';
-import { collection, onSnapshot, DocumentData, QuerySnapshot, Timestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, onSnapshot, QuerySnapshot, DocumentData } from 'firebase/firestore';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { ethers } from 'ethers';
 import styles from './GroupBalances.module.css';
 
 // Apollo Client setup
@@ -37,23 +38,24 @@ interface Expense {
   paidBy: string;
   sharedWith: string[];
   settled: boolean;
-  timestamp: Timestamp;
+  timestamp: any;
 }
 
 interface Balance {
   id: string;
   groupId: string;
   member: string;
-  balance: number;
+  balance: string; // Asegúrate de que sea string para BigNumber
 }
 
 const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
   const [debts, setDebts] = useState<Debt[]>([]);
 
   useEffect(() => {
-    const fetchDebts = async () => {
+    // Función para obtener gastos no settleados de Firestore
+    const fetchDebts = () => {
       const expensesRef = collection(firestore, 'groups', groupId, 'expenses');
-      onSnapshot(expensesRef, (snapshot: QuerySnapshot<DocumentData>) => {
+      const unsubscribe = onSnapshot(expensesRef, (snapshot: QuerySnapshot<DocumentData>) => {
         const balances: { [key: string]: number } = {};
 
         snapshot.forEach(doc => {
@@ -105,8 +107,11 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
 
         setDebts(calculatedDebts);
       });
+
+      return unsubscribe;
     };
 
+    // Función para obtener balances on-chain del subgrafo
     const fetchOnChainBalances = async () => {
       const result = await client.query({
         query: GET_BALANCES,
@@ -116,15 +121,25 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
       const onChainBalances = result.data.balances;
       const onChainDebts: Debt[] = onChainBalances.map((balance: Balance) => ({
         debtor: balance.member,
-        creditor: balance.groupId,
-        amount: balance.balance,
+        creditor: balance.groupId, // Ajustar esto según sea necesario
+        amount: parseFloat(ethers.utils.formatUnits(balance.balance, 18)) // Convertir BigNumber a número
       }));
 
       setDebts(prevDebts => [...prevDebts, ...onChainDebts]);
     };
 
-    fetchDebts();
+    // Limpiar el estado anterior cuando el grupo cambie
+    setDebts([]);
+
+    const unsubscribeDebts = fetchDebts();
     fetchOnChainBalances();
+
+    // Limpiar la suscripción de Firestore cuando el componente se desmonte o el grupo cambie
+    return () => {
+      if (typeof unsubscribeDebts === 'function') {
+        unsubscribeDebts();
+      }
+    };
   }, [groupId]);
 
   return (
@@ -135,7 +150,7 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
           {debts.map((debt, index) => (
             <li key={index} className={styles.debtCard}>
               <span className={styles.debtor}>{debt.debtor}</span> owes <span className={styles.creditor}>{debt.creditor}</span>: 
-              <span className={styles.amount}>${Number(debt.amount).toFixed(2)}</span>
+              <span className={styles.amount}>${debt.amount.toFixed(2)}</span>
             </li>
           ))}
         </ul>
