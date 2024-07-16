@@ -50,10 +50,28 @@ interface Balance {
 
 const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
   const [debts, setDebts] = useState<Debt[]>([]);
+  const [unsubscribe, setUnsubscribe] = useState<() => void>(() => () => {});
 
   useEffect(() => {
-    // Función para obtener gastos no settleados de Firestore
-    const fetchDebts = () => {
+    // Función para obtener balances on-chain del subgrafo
+    const fetchOnChainBalances = async () => {
+      const result = await client.query({
+        query: GET_BALANCES,
+        variables: { groupId },
+      });
+
+      const onChainBalances = result.data.balances;
+      const onChainDebts: Debt[] = onChainBalances.map((balance: Balance) => ({
+        debtor: balance.member,
+        creditor: balance.groupId, // Ajustar esto según sea necesario
+        amount: parseFloat(ethers.utils.formatUnits(balance.balance, 18)) // Convertir BigNumber a número
+      }));
+
+      return onChainDebts;
+    };
+
+    // Función para obtener gastos no settleados de Firestore y unificar con balances on-chain
+    const fetchDebts = async (onChainDebts: Debt[]) => {
       const expensesRef = collection(firestore, 'groups', groupId, 'expenses');
       const unsubscribe = onSnapshot(expensesRef, (snapshot: QuerySnapshot<DocumentData>) => {
         const balances: { [key: string]: number } = {};
@@ -105,40 +123,24 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
           }
         }
 
-        setDebts(calculatedDebts);
+        // Unificar onChainDebts y calculatedDebts
+        const unifiedDebts = [...onChainDebts, ...calculatedDebts];
+        setDebts(unifiedDebts);
       });
 
-      return unsubscribe;
+      setUnsubscribe(() => unsubscribe);
     };
 
-    // Función para obtener balances on-chain del subgrafo
-    const fetchOnChainBalances = async () => {
-      const result = await client.query({
-        query: GET_BALANCES,
-        variables: { groupId },
-      });
-
-      const onChainBalances = result.data.balances;
-      const onChainDebts: Debt[] = onChainBalances.map((balance: Balance) => ({
-        debtor: balance.member,
-        creditor: balance.groupId, // Ajustar esto según sea necesario
-        amount: parseFloat(ethers.utils.formatUnits(balance.balance, 18)) // Convertir BigNumber a número
-      }));
-
-      setDebts(prevDebts => [...prevDebts, ...onChainDebts]);
-    };
-
-    // Limpiar el estado anterior cuando el grupo cambie
+    // Limpiar la suscripción anterior y el estado antes de cambiar de grupo
+    unsubscribe();
     setDebts([]);
 
-    const unsubscribeDebts = fetchDebts();
-    fetchOnChainBalances();
+    // Llamar a las funciones para obtener datos y unificarlos
+    fetchOnChainBalances().then(fetchDebts);
 
     // Limpiar la suscripción de Firestore cuando el componente se desmonte o el grupo cambie
     return () => {
-      if (typeof unsubscribeDebts === 'function') {
-        unsubscribeDebts();
-      }
+      unsubscribe();
     };
   }, [groupId]);
 
