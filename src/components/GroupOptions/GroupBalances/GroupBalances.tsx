@@ -61,20 +61,25 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
       });
 
       const onChainBalances = result.data.balances;
-      const onChainDebts: Debt[] = onChainBalances.map((balance: Balance) => ({
-        debtor: balance.member,
-        creditor: balance.groupId, // Ajustar esto según sea necesario
-        amount: parseFloat(ethers.utils.formatUnits(balance.balance, 18)) // Convertir BigNumber a número
-      }));
+      const onChainDebts: { [key: string]: number } = {};
+      onChainBalances.forEach((balance: Balance) => {
+        const member = balance.member;
+        const amount = parseFloat(ethers.utils.formatUnits(balance.balance, 18)); // Convertir BigNumber a número
+
+        if (!onChainDebts[member]) {
+          onChainDebts[member] = 0;
+        }
+        onChainDebts[member] += amount;
+      });
 
       return onChainDebts;
     };
 
     // Función para obtener gastos no settleados de Firestore y unificar con balances on-chain
-    const fetchDebts = async (onChainDebts: Debt[]) => {
+    const fetchDebts = async (onChainDebts: { [key: string]: number }) => {
       const expensesRef = collection(firestore, 'groups', groupId, 'expenses');
       const unsubscribe = onSnapshot(expensesRef, (snapshot: QuerySnapshot<DocumentData>) => {
-        const balances: { [key: string]: number } = {};
+        const balances: { [key: string]: number } = { ...onChainDebts };
 
         snapshot.forEach(doc => {
           const data = doc.data();
@@ -123,9 +128,7 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
           }
         }
 
-        // Unificar onChainDebts y calculatedDebts
-        const unifiedDebts = [...onChainDebts, ...calculatedDebts];
-        setDebts(unifiedDebts);
+        setDebts(calculatedDebts);
       });
 
       setUnsubscribe(() => unsubscribe);
