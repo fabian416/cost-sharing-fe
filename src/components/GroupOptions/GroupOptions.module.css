@@ -61,3 +61,8 @@
 .addMember:hover {
   background-color: #28a828; /* Color más oscuro para el estado hover */
 }
+
+.settleUp { 
+  background-color: #28a828; /* Color más oscuro para el estado hover */
+  transition: background-color 0.3s;
+}

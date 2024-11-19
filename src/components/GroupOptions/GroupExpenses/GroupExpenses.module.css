@@ -43,3 +43,16 @@
   max-width: 95%; /* Limita el ancho máximo para mantener el diseño */
   word-wrap: break-word; /* Asegura que el texto largo no desborde */
 }
+
+.subTitle, p {
+  text-align: center;          
+  margin: 0;                   
+  width: 100%;                 
+}
+
+.subTitle {
+  font-size: 24px;
+  color: whitesmoke;
+  margin-bottom: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}

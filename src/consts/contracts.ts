@@ -3,7 +3,7 @@ import DEV_SQUARY_ABI from "../../src/abi/dev/SQUARY.json"
 const DEVELOPMENT_CONFIGURATION = {
     contracts: {
       SQUARY_CONTRACT: {
-        address: "0x3525566E98AF1593E3A5EA92383585e5F3d9ec64", // BASE address
+        address: "0x364f3828A0FD4A7087590b2F5C083F3CD0AE6d7B", // BASE Test address
         abi: DEV_SQUARY_ABI,
       }
     },
