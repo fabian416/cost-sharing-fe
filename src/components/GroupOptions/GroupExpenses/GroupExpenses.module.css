@@ -1,44 +1,37 @@
 .container {
-  padding: 20px;
-  margin: 20px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between; /* Asegura espaciado uniforme */
+  flex-grow: 1; /* Crece para ocupar espacio disponible */
+  height: 100%; /* Limita su altura al 100% del contenedor padre */
+  padding: 20px;
   background-color: transparent;
   backdrop-filter: blur(14px);
   border-radius: 25px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: calc(100% - 40px);
+  width: 100%; /* Ancho completo */
 }
 
 .groupContainer {
   display: flex;
   flex-direction: column;
+  flex-grow: 1; /* Crece con el contenedor padre */
   justify-content: flex-start;
-  align-items: center;
-  flex: 1;
+  height: 100%; /* Asegura que use toda la altura disponible */
   padding: 20px;
   margin: 18px;
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(14px);
   border-radius: 40px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-height: 400px; /* Limitar la altura máxima */
-  overflow-y: auto; /* Permitir el desplazamiento vertical */
-}
-
-.subTitle {
-  font-size: 24px;
-  color: #fff;
-  margin-bottom: 10px;
-  font-family: Arial, Helvetica, sans-serif;
-  text-align: center;
+  overflow-y: auto; /* Permite el scroll si el contenido excede la altura */
 }
 
 .expensesList {
-  width: 100%;
-  list-style: none;
+  width: 100%; /* Asegura que ocupe todo el ancho disponible */
   padding: 0;
   margin: 0;
+  list-style: none;
 }
 
 .expenseItem {
@@ -47,25 +40,6 @@
   padding: 15px;
   margin-bottom: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.expenseHeader {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.expenseDescription {
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.expenseAmount {
-  font-size: 18px;
-  color: #FFA500;
-}
-
-.expenseDetails {
-  font-size: 14px;
-  color: #555;
+  max-width: 95%; /* Limita el ancho máximo para mantener el diseño */
+  word-wrap: break-word; /* Asegura que el texto largo no desborde */
 }

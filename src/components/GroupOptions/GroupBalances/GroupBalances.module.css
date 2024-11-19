@@ -1,31 +1,31 @@
 .container {
-  padding: 20px;
-  margin: 20px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between; /* Asegura espaciado uniforme */
+  flex-grow: 1; /* Crece para ocupar espacio disponible */
+  height: 100%; /* Limita su altura al 100% del contenedor padre */
+  padding: 20px;
   background-color: transparent;
   backdrop-filter: blur(14px);
   border-radius: 25px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: calc(62% - 40px);
+  width: 100%; /* Ancho completo */
 }
 
 .groupContainer {
-  display: flex;               
-  flex-direction: column;      
-  justify-content: flex-start; 
-  align-items: center;         
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  flex-grow: 1; /* Permite que crezca proporcionalmente */
+  max-height: calc(100% - 50px); /* Ajusta su tamaño máximo al padre */
   padding: 20px;
   margin: 18px;
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(14px);
-  border-radius: 40px;  
+  border-radius: 40px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: auto;
-  min-height: 400px; 
 }
-
 .subTitle {
   font-size: 24px;
   color: whitesmoke;

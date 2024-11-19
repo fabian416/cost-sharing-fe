@@ -1,26 +1,31 @@
-/* Dashboard.module.css */
 .dashboardContainer {
   display: flex;
-  width: 100%; /* Asegura que tome todo el ancho disponible */
+  flex-direction: row; /* Sidebar a la izquierda, contenido a la derecha */
+  height: 100vh; /* Toda la altura de la pantalla */
+  width: 100%; /* Todo el ancho de la pantalla */
+  border: 2px solid red; /* Para pruebas */
+  overflow: hidden; /* Evitar scroll */
 }
 
 .mainContent {
-  flex-grow: 1;
   display: flex;
-  flex-direction: column;
-  background-image: url('../../assets/squaryBg.jpg'); /* Ajusta la ruta según tu estructura */
-  background-size: cover; /* Cubre completamente el área sin perder proporciones */
-  background-position: center; /* Centra la imagen en el contenedor */
+  flex-direction: column; /* Los hijos se apilan verticalmente */
+  flex-grow: 1; /* Ocupar espacio restante verticalmente */
+  height: 100%; /* Asegura que ocupe toda la altura disponible */
+  background-image: url('../../assets/squaryBg.jpg');
+  background-size: cover;
+  background-position: center;
+  border: 2px solid purple; /* Para pruebas */
+  overflow: hidden; /* Sin scroll */
 }
-
-
 .topBar {
   display: flex;
-  justify-content: flex-end; /* Alinea el ConnectButton a la derecha */
-  padding: 10px; /* Añade un poco de espacio alrededor */
+  justify-content: flex-end; /* Alinea el botón a la derecha */
+  padding: 10px;
 }
 
-/* Asegúrate de que el contenido principal toma el espacio vertical disponible */
 .content {
-  flex-grow: 1;
+  flex-grow: 1; /* Permite que el contenido se expanda */
+  display: flex;
+  flex-direction: column;
 }
