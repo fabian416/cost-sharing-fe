@@ -21,6 +21,41 @@
     "type": "constructor"
   },
   {
+    "inputs": [],
+    "name": "CallerIsNotMember",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "GroupAlreadyExist",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "GroupDoesNotExist",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientFundsToWithdraw",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientSignatures",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TransferFailed",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -68,44 +103,6 @@
       }
     ],
     "name": "GroupCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "groupId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newMember",
-        "type": "address"
-      }
-    ],
-    "name": "MemberAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "groupId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      }
-    ],
-    "name": "MemberRemoved",
     "type": "event"
   },
   {
@@ -191,29 +188,6 @@
         "type": "bytes32"
       },
       {
-        "internalType": "address",
-        "name": "newMember",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes[]",
-        "name": "signatures",
-        "type": "bytes[]"
-      }
-    ],
-    "name": "addGroupMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "groupId",
-        "type": "bytes32"
-      },
-      {
         "components": [
           {
             "internalType": "address",
@@ -231,7 +205,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct SquaryPolygonTest.Debt[]",
+        "internalType": "struct SquaryBaseTest.Debt[]",
         "name": "debts",
         "type": "tuple[]"
       },
@@ -250,6 +224,30 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "groupId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "member",
+        "type": "address"
+      }
+    ],
+    "name": "calculateSuggestedPayment",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "suggestedAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -382,25 +380,6 @@
         "internalType": "int256",
         "name": "",
         "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "groupId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getNonce",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -548,63 +527,6 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "pendingSettlements",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "debtor",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "creditor",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "groupId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes[]",
-        "name": "signatures",
-        "type": "bytes[]"
-      }
-    ],
-    "name": "removeGroupMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
         "name": "groupId",
         "type": "bytes32"
       },
@@ -626,7 +548,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct SquaryPolygonTest.Debt[]",
+        "internalType": "struct SquaryBaseTest.Debt[]",
         "name": "debts",
         "type": "tuple[]"
       },
