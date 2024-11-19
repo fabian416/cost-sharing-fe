@@ -54,22 +54,22 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
       </div>
       <form onSubmit={handleSubmit} className={styles.modalBody}>
         <div className={styles.formGroup}>
-          <label>Amount:</label>
-          <input
-            type="text"
-            value={amount}
-            onChange={handleAmountChange}
-            placeholder="Enter amount"
-          />
+          <label>Description:</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter description"
+            />
         </div>
         <div className={styles.formGroup}>
-          <label>Description:</label>
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter description"
-          />
+          <label>Amount:</label>
+            <input
+              type="text"
+              value={amount}
+              onChange={handleAmountChange}
+              placeholder="Enter amount"
+            />
         </div>
         <div className={styles.formGroup}>
           <label>Share With:</label>
