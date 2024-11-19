@@ -151,6 +151,7 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
     <div className={styles.container}>
       <div className={styles.groupContainer}>
         <h2 className={styles.subTitle}>Simplified Debts</h2>
+        <h3 className={styles.subTitle}>Status: On-chain</h3>
         <ul className={styles.debtsList}>
           {debts.map((debt, index) => (
             <li key={index} className={styles.debtCard}>

@@ -46,6 +46,7 @@ const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
     <div className={styles.container}>
       <div className={styles.groupContainer}>
         <h2 className={styles.subTitle}>Group Expenses</h2>
+        <h3 className={styles.subTitle}>Status: Pending</h3>
         <ul className={styles.expensesList}>
           {expenses.map((expense, index) => (
             <li key={index} className={styles.expenseItem}>

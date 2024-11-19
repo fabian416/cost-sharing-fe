@@ -131,7 +131,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
       <div className={styles.buttonsContainer}>
         <button className={`${styles.button} ${styles.addExpense}`} onClick={handleOpenExpenseModal}>Add Expense</button>
         <button className={`${styles.button} ${styles.settleUp}`} onClick={handleOpenSettleModal}>
-          {hasActiveProposal ? (userHasSigned ? 'Signed' : 'Sign') : 'Settle up'}
+          {hasActiveProposal ? (userHasSigned ? 'Signed' : 'Sign') : 'Start Settle'}
         </button>
       </div>
       {showExpenseModal && (
