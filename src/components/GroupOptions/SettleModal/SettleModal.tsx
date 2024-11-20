@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import styles from './SettleModal.module.css';
-import { addDoc, updateDoc, doc, arrayUnion, getDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
+import { addDoc, updateDoc, doc, arrayUnion, getDoc, collection, getDocs, writeBatch, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
 import { BigNumber, ethers } from 'ethers';
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
@@ -89,6 +89,11 @@ const SettleModal: React.FC<SettleModalProps> = ({
 }) => {
   const { walletProvider } = useWeb3ModalProvider();
   const [simplifiedDebts, setSimplifiedDebts] = useState<Debt[]>([]);
+  const [hasActiveProposalState, setHasActiveProposalState] = useState(hasActiveProposal);
+
+  useEffect(() => {
+    setHasActiveProposalState(hasActiveProposal);
+  }, [hasActiveProposal]);
 
   // Obtener y calcular las deudas simplificadas al abrir el modal
   useEffect(() => {
@@ -107,6 +112,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
       fetchExpensesAndCalculateDebts();
     }
   }, [show, groupId]);
+
   const handleProposeSettle = async () => {
     if (!walletProvider) {
       console.error('No wallet provider found');
@@ -167,6 +173,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
   
       await addDoc(collection(firestore, 'groups', groupId, 'settleProposals'), settleProposal);
       console.log('Settle proposal created and signed successfully');
+      handleClose();
     } else if (!userHasSigned) {
       // Agregar la firma del usuario a una propuesta activa
       const proposalRef = doc(firestore, 'groups', groupId, 'settleProposals', settleProposalId);
@@ -183,7 +190,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
       const updatedProposalData = updatedProposalSnap.data();
       if (updatedProposalData && updatedProposalData.signatures.length >= signatureThreshold) {
         console.log('Signatures:', updatedProposalData.signatures);
-  
+      
         // Llamar al contrato para realizar el settle
         try {
           const tx = await contract.settleDebtsWithSignatures(
@@ -192,17 +199,16 @@ const SettleModal: React.FC<SettleModalProps> = ({
             updatedProposalData.signatures.map((sig: Signature) => sig.signature)
           );
           console.log('Transaction sent:', tx.hash);
-  
+      
           // Esperar confirmación
           await tx.wait();
           console.log('Transaction confirmed successfully.');
-  
+      
           // Marcar las expenses como settled en Firestore
           const expensesRef = collection(firestore, 'groups', groupId, 'expenses');
           const snapshot = await getDocs(expensesRef);
-  
+      
           const batch = writeBatch(firestore);
-  
           snapshot.forEach(doc => {
             const data = doc.data();
             if (!data.settled) {
@@ -210,21 +216,32 @@ const SettleModal: React.FC<SettleModalProps> = ({
               batch.update(expenseRef, { settled: true });
             }
           });
-  
+      
           await batch.commit();
           console.log('Expenses marked as settled successfully.');
+              
+          // Eliminar la propuesta de Firestore
+        const proposalRef = doc(firestore, 'groups', groupId, 'settleProposals', settleProposalId);
+        await deleteDoc(proposalRef);
+        console.log('Proposal deleted successfully.');
+
+        // Reiniciar estado del botón a "Start Settle"
+        setSimplifiedDebts([]);
+        setHasActiveProposalState(false); // Actualizar el estado después de eliminar la propuesta
         } catch (error) {
           console.error('Error during settle transaction:', error);
         }
-      } else {
+      }
+      else {
         console.log('Signed settle proposal successfully.');
       }
+    
+      // Cierra el modal automáticamente
+      handleClose();
     }
-  
-    handleClose();
-  };
+    handleClose()
+  }
 
-  
   return (
     <Modal
       isOpen={show}
