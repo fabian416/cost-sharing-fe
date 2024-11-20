@@ -25,9 +25,8 @@ interface GroupBalancesProps {
 
 interface Balance {
   id: string;
-  groupId: string;
   member: string;
-  balance: string; // Se usa string para manejar BigNumber
+  balance: string; // Manejo como string para BigNumber
 }
 
 const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
@@ -60,10 +59,27 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
           {balances.length > 0 ? (
             balances.map((balance) => {
               const amount = parseFloat(ethers.utils.formatUnits(balance.balance, 18)); // Formatear BigNumber
+              const isOwing = amount < 0;
+              const formattedAmount = Math.abs(amount).toFixed(2); // Mostrar valor absoluto
               return (
-                <li key={balance.id} className={styles.debtCard}>
-                  <span className={styles.member}>{balance.member}</span> has a balance of: 
-                  <span className={styles.amount}>${amount.toFixed(2)}</span>
+                <li
+                  key={balance.id}
+                  className={styles.debtCard}
+                  style={{
+                    border: isOwing ? '2px solid #c82333' : '2px solid #218838', // Rojo y verde más oscuros
+                    color: isOwing ? '#721c24' : '#155724', // Texto rojo y verde oscuros
+                  }}
+                >
+                  <span className={styles.member}>{balance.member}</span>{' '}
+                  {isOwing ? (
+                    <>
+                      owes <span className={styles.amount}>${formattedAmount}</span>
+                    </>
+                  ) : (
+                    <>
+                      gets back <span className={styles.amount}>${formattedAmount}</span>
+                    </>
+                  )}
                 </li>
               );
             })
