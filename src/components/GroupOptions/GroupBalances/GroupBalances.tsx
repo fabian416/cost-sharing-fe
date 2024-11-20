@@ -13,7 +13,6 @@ const GET_BALANCES = gql`
   query GetBalances($groupId: Bytes!) {
     balances(where: { groupId: $groupId }) {
       id
-      groupId
       member
       balance
     }
