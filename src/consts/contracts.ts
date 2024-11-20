@@ -5,8 +5,15 @@ const DEVELOPMENT_CONFIGURATION = {
     contracts: {
       SQUARY_CONTRACT: {
         address: "0x364f3828A0FD4A7087590b2F5C083F3CD0AE6d7B", // BASE Test address
-        abi: DEV_SQUARY_ABI,
-        erc20: DEV_ERC20_ABI
+        abi: DEV_SQUARY_ABI
+      },
+      USDT_CONTRACT: {
+        address: "0xd0602be1b9c3ED0715Be5786AD34114D9Da737BD",
+        abi: DEV_ERC20_ABI
+      },
+      USDC_CONTRACT: {
+        address: "0x87B6F2A7A9e371f93bBbE75926400699202B8a58",
+        abi: DEV_ERC20_ABI
       }
     },
     chainId: 80002,

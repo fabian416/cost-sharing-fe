@@ -141,24 +141,51 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
       console.error('No wallet provider found');
       return;
     }
-
+  
     try {
       const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
-      const contract = new ethers.Contract(
+      const signer = ethersProvider.getSigner();
+  
+      // Contrato del token USDT/USDC
+      const erc20Contract = new ethers.Contract(
+        APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.address, // Dirección del token (USDT o USDC)
+        APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.abi, // ABI del token ERC20
+        signer
+      );
+  
+      // Contrato principal donde se depositarán los fondos
+      const squaryContract = new ethers.Contract(
         APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
         APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi,
-        ethersProvider.getSigner()
+        signer
       );
-      const amountToString =  amount.toString();
-      console.log("amount to string is ;:", amountToString)
-      const tx = await contract.depositFunds(groupId, ethers.utils.parseUnits(amountToString, 6));
-      console.log("TX:", tx);
-      console.log('Deposit transaction sent:', tx.hash);
-
-      await tx.wait();
-      console.log('Deposit transaction confirmed.');
+  
+      // Convertir el monto a BigNumber con 6 decimales (USDT/USDC)
+      const parsedAmount = ethers.utils.parseUnits(amount.toString(), 6);
+      console.log("Parsed amount for deposit:", parsedAmount.toString());
+  
+      // Paso 1: Aprobar el contrato principal para gastar tokens
+      console.log(`Approving ${APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address} to spend ${amount} USDT/USDC...`);
+      const approveTx = await erc20Contract.approve(
+        APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address, // Contrato principal
+        parsedAmount
+      );
+      console.log("Approve transaction sent:", approveTx.hash);
+  
+      // Esperar confirmación de la transacción de aprobación
+      await approveTx.wait();
+      console.log("Approve transaction confirmed.");
+  
+      // Paso 2: Llamar a la función `depositFunds`
+      console.log("Depositing funds to contract...");
+      const depositTx = await squaryContract.depositFunds(groupId, parsedAmount);
+      console.log("Deposit transaction sent:", depositTx.hash);
+  
+      // Esperar confirmación de la transacción de depósito
+      await depositTx.wait();
+      console.log("Deposit transaction confirmed.");
     } catch (error) {
-      console.error('Error during deposit:', error);
+      console.error("Error during deposit:", error);
     }
   };
 
