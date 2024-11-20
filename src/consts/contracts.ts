@@ -1,10 +1,12 @@
 import DEV_SQUARY_ABI from "../../src/abi/dev/SQUARY.json"
+import DEV_ERC20_ABI from "../../src/abi/dev/ERC20.json"
 
 const DEVELOPMENT_CONFIGURATION = {
     contracts: {
       SQUARY_CONTRACT: {
         address: "0x364f3828A0FD4A7087590b2F5C083F3CD0AE6d7B", // BASE Test address
         abi: DEV_SQUARY_ABI,
+        erc20: DEV_ERC20_ABI
       }
     },
     chainId: 80002,
