@@ -113,53 +113,60 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.groupContainer}>
-        {/* Sección de deudas */}
-        <h2 className={styles.subTitle}>Debts</h2>
-        <ul className={styles.debtsList}>
-          {owingBalances.length > 0 ? (
-            owingBalances.map((balance) => (
-              <li
-                key={balance.id}
-                className={styles.debtCard}
-                style={{
-                  border: '2px solid #c82333',
-                  color: '#721c24',
-                }}
-              >
-                <span className={styles.member}>{balance.member}</span>{' '}
-                owes <span className={styles.amount}>${Math.abs(balance.rawBalance).toFixed(2)}</span>{' '}
-                to <span className={styles.creditor}>{balance.creditor}</span>
-              </li>
-            ))
-          ) : (
-            <p>No debts found for this group.</p>
-          )}
-        </ul>
+  {/* Título y estado */}
+  <div className={styles.header}>
+    <h2 className={styles.title}>Balances</h2>
+    <span className={styles.status}>• Confirmed</span>
+  </div>
+  
+  {/* Contenedor interno */}
+  <div className={styles.groupContainer}>
+    {/* Sección de deudas */}
+    <h3 className={styles.subTitle}>Debts</h3>
+    <ul className={styles.debtsList}>
+      {owingBalances.length > 0 ? (
+        owingBalances.map((balance) => (
+          <li
+            key={balance.id}
+            className={styles.debtCard}
+            style={{
+              border: '2px solid #c82333',
+              color: '#721c24',
+            }}
+          >
+            <span className={styles.member}>{balance.member}</span>{' '}
+            owes <span className={styles.amount}>${Math.abs(balance.rawBalance).toFixed(2)}</span>{' '}
+            to <span className={styles.creditor}>{balance.creditor}</span>
+          </li>
+        ))
+      ) : (
+        <p>No debts found for this group.</p>
+      )}
+    </ul>
 
-        {/* Sección de balances disponibles */}
-        <h2 className={styles.subTitle}>Available Balances</h2>
-        <ul className={styles.debtsList}>
-          {availableBalances.length > 0 ? (
-            availableBalances.map((balance) => (
-              <li
-                key={balance.id}
-                className={styles.debtCard}
-                style={{
-                  border: '2px solid #218838',
-                  color: '#155724',
-                }}
-              >
-                <span className={styles.member}>{balance.member}</span>{' '}
-                available <span className={styles.amount}>${balance.available.toFixed(2)}</span>
-              </li>
-            ))
-          ) : (
-            <p>No available balances for this group.</p>
-          )}
-        </ul>
-      </div>
-    </div>
+    {/* Sección de balances disponibles */}
+    <h3 className={styles.subTitle}>Available Balances</h3>
+    <ul className={styles.debtsList}>
+      {availableBalances.length > 0 ? (
+        availableBalances.map((balance) => (
+          <li
+            key={balance.id}
+            className={styles.debtCard}
+            style={{
+              border: '2px solid #218838',
+              color: '#155724',
+            }}
+          >
+            <span className={styles.member}>{balance.member}</span>{' '}
+            available <span className={styles.amount}>${balance.available.toFixed(2)}</span>
+          </li>
+        ))
+      ) : (
+        <p>No available balances for this group.</p>
+      )}
+    </ul>
+  </div>
+</div>
   );
 };
 
