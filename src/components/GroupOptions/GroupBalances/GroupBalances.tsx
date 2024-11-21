@@ -50,41 +50,65 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ groupId }) => {
     fetchBalances();
   }, [groupId]);
 
+  // Ajustar a 6 decimales para USDT/USDC
+  const formatBalance = (balance: string): number => {
+    return parseFloat(ethers.utils.formatUnits(balance, 6));
+  };
+
+  // Separar las deudas (negative balances) y saldos disponibles (positive balances)
+  const owingBalances = balances.filter((balance) => formatBalance(balance.balance) < 0);
+  const availableBalances = balances.filter((balance) => formatBalance(balance.balance) > 0);
+
   return (
     <div className={styles.container}>
       <div className={styles.groupContainer}>
-        <h2 className={styles.subTitle}>Simplified Debts</h2>
-        <h3 className={styles.subTitle}>Status: On-chain</h3>
+        {/* Mostrar deudas */}
+        <h2 className={styles.subTitle}>Debts</h2>
         <ul className={styles.debtsList}>
-          {balances.length > 0 ? (
-            balances.map((balance) => {
-              const amount = parseFloat(ethers.utils.formatUnits(balance.balance, 18)); // Formatear BigNumber
-              const isOwing = amount < 0;
-              const formattedAmount = Math.abs(amount).toFixed(2); // Mostrar valor absoluto
+          {owingBalances.length > 0 ? (
+            owingBalances.map((balance) => {
+              const amount = Math.abs(formatBalance(balance.balance)).toFixed(2);
               return (
                 <li
                   key={balance.id}
                   className={styles.debtCard}
                   style={{
-                    border: isOwing ? '2px solid #c82333' : '2px solid #218838', // Rojo y verde más oscuros
-                    color: isOwing ? '#721c24' : '#155724', // Texto rojo y verde oscuros
+                    border: '2px solid #c82333',
+                    color: '#721c24',
                   }}
                 >
                   <span className={styles.member}>{balance.member}</span>{' '}
-                  {isOwing ? (
-                    <>
-                      owes <span className={styles.amount}>${formattedAmount}</span>
-                    </>
-                  ) : (
-                    <>
-                      gets back <span className={styles.amount}>${formattedAmount}</span>
-                    </>
-                  )}
+                  owes <span className={styles.amount}>${amount}</span>
                 </li>
               );
             })
           ) : (
             <p>No debts found for this group.</p>
+          )}
+        </ul>
+
+        {/* Mostrar saldos disponibles */}
+        <h2 className={styles.subTitle}>Available Balances</h2>
+        <ul className={styles.debtsList}>
+          {availableBalances.length > 0 ? (
+            availableBalances.map((balance) => {
+              const amount = formatBalance(balance.balance).toFixed(2);
+              return (
+                <li
+                  key={balance.id}
+                  className={styles.debtCard}
+                  style={{
+                    border: '2px solid #218838',
+                    color: '#155724',
+                  }}
+                >
+                  <span className={styles.member}>{balance.member}</span>{' '}
+                  available <span className={styles.amount}>${amount}</span>
+                </li>
+              );
+            })
+          ) : (
+            <p>No available balances for this group.</p>
           )}
         </ul>
       </div>

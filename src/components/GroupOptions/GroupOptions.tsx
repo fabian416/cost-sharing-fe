@@ -196,6 +196,17 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
       await handleDepositFunds(amount);
     }
   };
+  const handleAddExpense = async (amount: number, description: string, sharedWith: string[]) => {
+    const newExpense = {
+      amount,
+      description,
+      paidBy: currentUser,
+      sharedWith,
+      settled: false,
+      timestamp: Timestamp.fromDate(new Date())
+    };
+    await addDoc(collection(firestore, 'groups', groupId, 'expenses'), newExpense);
+  };
 
   // Modal Handlers
   const handleOpenExpenseModal = () => setShowExpenseModal(true);
