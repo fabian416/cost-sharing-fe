@@ -8,7 +8,7 @@
   top: 0; /* Alineada al top */
   display: flex; /* Usando Flexbox */
   flex-direction: column; /* Elementos en columna */
-  flex: 0 0 250px; /* Ancho fijo para la sidebar */
+  flex: 0 0 285px; /* Ancho fijo para la sidebar */
   align-items: center; /* Alineación horizontal */
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }

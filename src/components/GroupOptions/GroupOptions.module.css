@@ -1,18 +1,18 @@
 .groupOptions {
-  padding: 18px 36px;
-  background-color: transparent;
+  padding: 15px 36px;
+  background-color:  rgba(255, 255, 255, 0.15); ;
   backdrop-filter: blur(14px);
   border-radius: 22.5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 25.2px;
+  margin: 15px 15px; /* Reducir el margen vertical */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px; /* Espaciado uniforme entre elementos */
+  gap: 10px; /* Espaciado uniforme entre elementos */
 }
 
 .title {
-  margin-bottom: 20px; /* Reducido para menor espacio vertical */
+  margin-bottom:20px; /* Reducido para menor espacio vertical */
   font-size: 36px; /* Ajustado para mejor legibilidad */
   color: whitesmoke;
   font-family: Arial, Helvetica, sans-serif;
@@ -28,6 +28,7 @@
   backdrop-filter: blur(14px);
   border-radius: 36px;
   padding: 18px;
+  margin-top: -15px;
   width: 100%;
   max-width: 1200px; /* Ancho máximo para mantener diseño limpio */
 }
