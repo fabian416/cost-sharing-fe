@@ -3,7 +3,6 @@
   flex-direction: row; /* Sidebar a la izquierda, contenido a la derecha */
   height: 100vh; /* Toda la altura de la pantalla */
   width: 100%; /* Todo el ancho de la pantalla */
-  border: 2px solid red; /* Para pruebas */
   overflow: hidden; /* Evitar scroll */
 }
 
@@ -15,7 +14,6 @@
   background-image: url('../../assets/squaryBg.jpg');
   background-size: cover;
   background-position: center;
-  border: 2px solid purple; /* Para pruebas */
   overflow: hidden; /* Sin scroll */
 }
 .topBar {

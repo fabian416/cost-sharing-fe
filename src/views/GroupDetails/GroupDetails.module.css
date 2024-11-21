@@ -7,7 +7,6 @@
   height: 100%; /* Asegura que ocupe el espacio completo del padre */
   box-sizing: border-box; /* Incluye padding en el cálculo del tamaño */
   overflow: hidden; /* Evita desbordamiento */
-  border: 2px solid red; /* Para pruebas */
 }
 
 .sectionsContainer {

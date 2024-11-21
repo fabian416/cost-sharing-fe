@@ -43,26 +43,28 @@ const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
   }, [groupId]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.groupContainer}>
-        <h2 className={styles.subTitle}>Group Expenses</h2>
-        <h3 className={styles.subTitle}>Status: Pending</h3>
-        <ul className={styles.expensesList}>
-          {expenses.map((expense, index) => (
-            <li key={index} className={styles.expenseItem}>
-              <div className={styles.expenseHeader}>
-                <span className={styles.expenseDescription}>{expense.description}</span>
-                <span className={styles.expenseAmount}>${expense.amount}</span>
-              </div>
-              <div className={styles.expenseDetails}>
-                <span>Paid by: {expense.paidBy}</span>
-                <span>Shared with: {expense.sharedWith.join(', ')}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2 className={styles.expensesTitle}>Expenses</h2>
+          <span className={styles.pendingStatus}>• Pending</span>
+        </div>
+        <div className={styles.groupContainer}>
+          <ul className={styles.expensesList}>
+            {expenses.map((expense, index) => (
+              <li key={index} className={styles.expenseItem}>
+                <div className={styles.expenseHeader}>
+                  <span className={styles.expenseDescription}>{expense.description}</span>
+                  <span className={styles.expenseAmount}>${expense.amount}</span>
+                </div>
+                <div className={styles.expenseDetails}>
+                  <span>Paid by: {expense.paidBy}</span>
+                  <span>Shared with: {expense.sharedWith.join(', ')}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
   );
 };
 
