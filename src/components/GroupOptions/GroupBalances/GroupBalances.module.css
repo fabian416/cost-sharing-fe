@@ -36,7 +36,7 @@
 }
 
 .status {
-  color: #0bcf39; /* Verde éxito */
+  color: rgb(33, 136, 56);
   font-size: 19px; /* Reduce un poco el tamaño */
   font-weight: bold;
   font-family: Arial, Helvetica, sans-serif;

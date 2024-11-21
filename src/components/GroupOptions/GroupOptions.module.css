@@ -56,37 +56,39 @@
 
 /* Colores personalizados por acción */
 
+/* Colores personalizados por acción */
 .addExpense {
-  background-color: #C49C68; /* Beige claro */
+  background-color: #D19B5B; /* Beige claro más saturado */
 }
 
 .addExpense:hover {
-  background-color: #B08458; /* Beige más oscuro */
+  background-color: #C0864A; /* Beige más oscuro */
 }
 
 .settleUp {
-  background-color: #6E8D6A; /* Verde oliva */
+  background-color: #699A64; /* Verde oliva más saturado */
 }
 
 .settleUp:hover {
-  background-color: #5E7C5A; /* Verde oliva más oscuro */
+  background-color: #587C53; /* Verde oliva más oscuro */
 }
 
 .deposit {
-  background-color: #A66E5A; /* Marrón terracota */
+  background-color: #94503A; /* Marrón terracota más saturado */
 }
 
 .deposit:hover {
-  background-color: #8E5C49; /* Marrón terracota más oscuro */
+  background-color: #7B3F2D; /* Marrón terracota más oscuro */
 }
 
 .withdraw {
-  background-color: #76817E; /* Verde grisáceo */
+  background-color: #6C817C; /* Verde grisáceo más saturado */
 }
 
 .withdraw:hover {
-  background-color: #646F6D; /* Verde grisáceo más oscuro */
+  background-color: #586963; /* Verde grisáceo más oscuro */
 }
+
 
 .containerSection {
   display: flex;
