@@ -11,7 +11,7 @@
   flex-direction: column; /* Los hijos se apilan verticalmente */
   flex-grow: 1; /* Ocupar espacio restante verticalmente */
   height: 100%; /* Asegura que ocupe toda la altura disponible */
-  background-image: url('../../assets/squaryBg.jpg');
+  background-color: #D9A673;
   background-size: cover;
   background-position: center;
   overflow: hidden; /* Sin scroll */

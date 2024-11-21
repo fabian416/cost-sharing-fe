@@ -1,3 +1,5 @@
+
+
 .container {
   position: relative; /* Para posicionar elementos dentro */
   display: flex;
@@ -6,7 +8,7 @@
   flex-grow: 1;
   height: 100%;
   padding: 10px; /* Reduce el padding global */
-  background-color: transparent;
+  background-color:  rgba(255, 255, 255, 0.15); ;
   backdrop-filter: blur(14px);
   border-radius: 25px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -29,7 +31,7 @@
 }
 
 .status {
-  color: #28a745; /* Verde éxito */
+  color: #0bcf39; /* Verde éxito */
   font-size: 19px; /* Reduce un poco el tamaño */
   font-weight: bold;
   font-family: Arial, Helvetica, sans-serif;
@@ -45,7 +47,7 @@
   align-items: flex-start;
   height: calc(100% - 80px); /* Reduce más la altura */
   padding: 10px 15px; /* Reduce el padding interno */
-  margin: 10px auto; /* Menor margen entre contenedores */
+  margin: 10px auto; /* Incrementa el margen para mayor separación entre contenedores */
   width: 92%; /* Ajusta el ancho para hacerlo más compacto */
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(14px);

@@ -44,44 +44,47 @@
   flex-grow: 1; /* Los botones ocupan espacio uniforme */
   max-width: 200px; /* Ancho máximo para evitar botones demasiado largos */
   min-width: 150px; /* Ancho mínimo para mantener consistencia */
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
   text-align: center; /* Centrar texto en los botones */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* Sombra sutil */
 }
 
 .button:hover {
-  background-color: #e06c45;
+  transform: scale(1.05); /* Pequeño efecto de hover */
 }
 
+/* Colores personalizados por acción */
+
 .addExpense {
-  background-color: #ff7f50; /* Naranja */
+  background-color: #C49C68; /* Beige claro */
 }
 
 .addExpense:hover {
-  background-color: #e06c45; /* Naranja más oscuro */
+  background-color: #B08458; /* Beige más oscuro */
 }
 
 .settleUp {
-  background-color: #32cd32; /* Verde */
+  background-color: #6E8D6A; /* Verde oliva */
 }
 
 .settleUp:hover {
-  background-color: #28a828; /* Verde más oscuro */
-}
-
-.withdraw {
-  background-color: #1e90ff; /* Azul */
-}
-
-.withdraw:hover {
-  background-color: #1c86ee; /* Azul más oscuro */
+  background-color: #5E7C5A; /* Verde oliva más oscuro */
 }
 
 .deposit {
-  background-color: #ffa500; /* Amarillo */
+  background-color: #A66E5A; /* Marrón terracota */
 }
 
 .deposit:hover {
-  background-color: #e59400; /* Amarillo más oscuro */
+  background-color: #8E5C49; /* Marrón terracota más oscuro */
+}
+
+.withdraw {
+  background-color: #76817E; /* Verde grisáceo */
+}
+
+.withdraw:hover {
+  background-color: #646F6D; /* Verde grisáceo más oscuro */
 }
 
 .containerSection {
@@ -103,6 +106,8 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
 }
+
+/* Estilos responsivos */
 
 @media (max-width: 768px) {
   .containerSection {

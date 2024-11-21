@@ -82,21 +82,23 @@ input, select {
 }
 
 .memberButton.selected {
-  background-color: #28a745;
-  color: #fff;
+  background-color: #C49C68; /* Beige claro para seleccionado */
+  color: white; /* Texto blanco */
+  border: none; /* Sin bordes */
 }
-
 .addButton {
   padding: 15px 20px;
-  background-color: #FFA500;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  background-color: #C49C68; /* Beige claro */
+  color: white; /* Texto blanco */
+  border: none; /* Sin bordes para un diseño limpio */
+  border-radius: 8px; /* Bordes redondeados */
+  cursor: pointer; /* Cambia el cursor al pasar el mouse */
   font-size: 1.5rem;
-  transition: background-color 0.3s;
+  font-weight: bold; /* Texto más visible */
+  transition: background-color 0.3s; /* Animación suave */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra ligera */
 }
 
 .addButton:hover {
-  background-color: #e69500;
+  background-color: #B08458; /* Beige más oscuro al hacer hover */
 }
