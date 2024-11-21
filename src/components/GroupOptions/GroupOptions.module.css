@@ -14,7 +14,7 @@
 .title {
   margin-bottom:20px; /* Reducido para menor espacio vertical */
   font-size: 36px; /* Ajustado para mejor legibilidad */
-  color: whitesmoke;
+  color: white;
   font-family: Arial, Helvetica, sans-serif;
   text-align: center; /* Centrado para mejor visualización */
 }
@@ -36,12 +36,12 @@
 .button {
   margin: 10px; /* Reducido para menor separación */
   padding: 12px 24px; /* Ajustado para botones más compactos */
-  font-size: 18px; /* Tamaño de fuente moderado */
+  font-size: 20px; /* Tamaño de fuente moderado */
   font-family: Arial, Helvetica, sans-serif;
   cursor: pointer;
   border: 0;
   border-radius: 18px;
-  color: #ffffff;
+  color: white;
   flex-grow: 1; /* Los botones ocupan espacio uniforme */
   max-width: 200px; /* Ancho máximo para evitar botones demasiado largos */
   min-width: 150px; /* Ancho mínimo para mantener consistencia */
@@ -102,7 +102,7 @@
   max-width: 48%; /* Máximo ancho del contenedor */
   min-width: 300px; /* Mínimo ancho para pantallas pequeñas */
   padding: 15px;
-  background-color: #fff;
+  background-color: white;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
