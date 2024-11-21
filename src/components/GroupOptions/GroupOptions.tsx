@@ -148,7 +148,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
   
       // Contrato del token USDT/USDC
       const erc20Contract = new ethers.Contract(
-        APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.address, // Dirección del token (USDT o USDC)
+        APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.address,
         APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.abi, // ABI del token ERC20
         signer
       );

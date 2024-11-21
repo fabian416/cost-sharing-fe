@@ -34,7 +34,7 @@ const DEVELOPMENT_CONFIGURATION = {
     baseTestnet: {
       chainId: 84532,
       name: "Base Testnet",
-      currency: "BASE",
+      currency: "ETH",
       explorerUrl: "https://sepolia.basescan.org/",
       rpcUrl: "https://api.developer.coinbase.com/rpc/v1/base-sepolia/aOcbTxSy4UW-rAet6Qc7EQg3cM_enXfH"
     }

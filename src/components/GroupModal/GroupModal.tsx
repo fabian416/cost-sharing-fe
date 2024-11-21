@@ -113,8 +113,8 @@ const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup,
             onChange={(e) => setTokenAddress(e.target.value)}
           >
             <option value="">Select a currency</option>
-            <option value="0x439b59e41ED27F7B2bF7ed6f72Dd4447B1cAA363">USDC</option>
-            <option value="0x3B22bf17D16B87286Ead98D04f5Db0c3134BD121">USDT</option>
+            <option value="0x87B6F2A7A9e371f93bBbE75926400699202B8a58">USDC</option>
+            <option value="0xd0602be1b9c3ED0715Be5786AD34114D9Da737BD">USDT</option>
             <option value="0x6B175474E89094C44Da98b954EedeAC495271d0F">DAI</option>
           </select>
         </div>
