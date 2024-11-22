@@ -82,13 +82,13 @@ input, select {
 }
 
 .memberButton.selected {
-  background-color: #C49C68; /* Beige claro para seleccionado */
+  background-color: #28a828; /* Beige claro para seleccionado */
   color: white; /* Texto blanco */
   border: none; /* Sin bordes */
 }
 .addButton {
   padding: 15px 20px;
-  background-color: #C49C68; /* Beige claro */
+  background-color: #FFA500; /* Beige claro */
   color: white; /* Texto blanco */
   border: none; /* Sin bordes para un diseño limpio */
   border-radius: 8px; /* Bordes redondeados */
@@ -100,5 +100,6 @@ input, select {
 }
 
 .addButton:hover {
-  background-color: #B08458; /* Beige más oscuro al hacer hover */
+  background-color: #e69500; /* Beige más oscuro al hacer hover */
 }
+
