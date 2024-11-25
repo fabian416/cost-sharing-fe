@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import styles from './SettleModal/SettleModal.module.css'; // Usar los mismos estilos del SettleModal para mantener consistencia
-import { ethers } from 'ethers';
 
 interface WithdrawDepositModalProps {
   show: boolean;
