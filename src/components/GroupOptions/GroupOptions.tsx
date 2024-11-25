@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ExpenseModal from './ExpenseModal/ExpenseModal';
 import SettleModal from './SettleModal/SettleModal';
 import WithdrawDepositModal from './WithdrawDepositModal'; // Ensure this import exists
@@ -19,6 +20,7 @@ interface Debt {
 interface GroupOptionsProps {
   groupId: string;
   groupName: string;
+  onBalancesUpdate?: () => void; // Agrega esta propiedad
 }
 
 interface Signature {
@@ -35,7 +37,8 @@ interface Expense {
   timestamp: Timestamp;
 }
 
-const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
+const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalancesUpdate }) => {
+  const navigate = useNavigate(); // Hook de navegación de React Router
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showSettleModal, setShowSettleModal] = useState(false);
   const [showWithdrawDepositModal, setShowWithdrawDepositModal] = useState(false); // Added state
@@ -130,7 +133,10 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
       console.log('Withdraw transaction sent:', tx.hash);
 
       await tx.wait();
-      console.log('Withdraw transaction confirmed.');
+  
+      if (onBalancesUpdate) {
+        onBalancesUpdate(); // Llama a la función de actualización
+      }
     } catch (error) {
       console.error('Error during withdrawal:', error);
     }
@@ -181,9 +187,10 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName }) => {
       const depositTx = await squaryContract.depositFunds(groupId, parsedAmount);
       console.log("Deposit transaction sent:", depositTx.hash);
   
-      // Esperar confirmación de la transacción de depósito
       await depositTx.wait();
-      console.log("Deposit transaction confirmed.");
+      if (onBalancesUpdate) {
+        onBalancesUpdate(); // Llama a la función de actualización
+      }
     } catch (error) {
       console.error("Error during deposit:", error);
     }
