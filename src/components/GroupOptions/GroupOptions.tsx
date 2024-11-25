@@ -129,7 +129,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
         ethersProvider.getSigner()
       );
 
-      const tx = await contract.withdrawFunds(groupId, ethers.utils.parseUnits(amount.toString(), 18));
+      const tx = await contract.withdrawFunds(groupId, ethers.utils.parseUnits(amount.toString(), 6));
       console.log('Withdraw transaction sent:', tx.hash);
 
       await tx.wait();
