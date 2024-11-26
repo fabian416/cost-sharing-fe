@@ -90,6 +90,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
   const { walletProvider } = useWeb3ModalProvider();
   const [simplifiedDebts, setSimplifiedDebts] = useState<Debt[]>([]);
   const [hasActiveProposalState, setHasActiveProposalState] = useState(hasActiveProposal);
+  console.log('Has Active Proposal State:', hasActiveProposalState);
 
   useEffect(() => {
     setHasActiveProposalState(hasActiveProposal);
