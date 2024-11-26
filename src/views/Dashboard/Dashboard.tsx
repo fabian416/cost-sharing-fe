@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import Sidebar from '../../components/SideBar/SideBar';
 import ConnectButton from '../../components/ConnectButton/ConnectButton';
 import { Outlet } from 'react-router-dom';

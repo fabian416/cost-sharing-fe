@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import ConnectButton from '../../components/ConnectButton/ConnectButton';
 import { useWeb3ModalAccount } from '@web3modal/ethers5/react';
 import { useNavigate } from 'react-router-dom';

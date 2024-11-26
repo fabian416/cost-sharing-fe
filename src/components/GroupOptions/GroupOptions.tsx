@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ExpenseModal from './ExpenseModal/ExpenseModal';
 import SettleModal from './SettleModal/SettleModal';
 import WithdrawDepositModal from './WithdrawDepositModal'; // Ensure this import exists
@@ -10,12 +9,6 @@ import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers5/re
 import { APPLICATION_CONFIGURATION } from '../../consts/contracts';
 import { ethers, providers } from 'ethers';
 import { fetchGroupDetails } from './contractInteractions';
-
-interface Debt {
-  debtor: string;
-  creditor: string;
-  amount: number;
-}
 
 interface GroupOptionsProps {
   groupId: string;
@@ -28,17 +21,7 @@ interface Signature {
   signature: string;
 }
 
-interface Expense {
-  amount: number;
-  description: string;
-  paidBy: string;
-  sharedWith: string[];
-  settled: boolean;
-  timestamp: Timestamp;
-}
-
 const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalancesUpdate }) => {
-  const navigate = useNavigate(); // Hook de navegación de React Router
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showSettleModal, setShowSettleModal] = useState(false);
   const [showWithdrawDepositModal, setShowWithdrawDepositModal] = useState(false); // Added state

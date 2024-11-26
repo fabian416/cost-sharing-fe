@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from './PanelOptions.module.css'; // Asegúrate de que el archivo CSS está correctamente vinculado
 
 const PanelOptions = () => {

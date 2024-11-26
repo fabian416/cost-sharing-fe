@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from './AdditionalSection2.module.css';  
 
 const AdditionalSection2 = () => {
