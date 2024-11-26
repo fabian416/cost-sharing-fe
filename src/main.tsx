@@ -5,7 +5,7 @@ import { createWeb3Modal, defaultConfig } from "@web3modal/ethers5/react";
 import App from "./App";
 import { APPLICATION_CONFIGURATION } from "./consts/contracts";
 
-const projectId = process.env.VITE_WEB3_PROJECT_ID as string;
+const projectId = process.env.VITE_WEB3_PROJECT_ID || "PROJECT_ID_NEEDED";
 const { chainAmoy, chainPolygon, baseTestnet } = APPLICATION_CONFIGURATION;
 
 const metadata = {
