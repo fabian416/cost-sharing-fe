@@ -5,8 +5,8 @@ import { createWeb3Modal, defaultConfig } from "@web3modal/ethers5/react";
 import App from "./App";
 import { APPLICATION_CONFIGURATION } from "./consts/contracts";
 
-const projectId = "4d378fa56130355ea47ae76070a0c491";
-const { chainAmoy, chainPolygon, baseTestnet} = APPLICATION_CONFIGURATION;
+const projectId = process.env.REACT_APP_WEB3_PROJECT_ID as string;
+const { chainAmoy, chainPolygon, baseTestnet } = APPLICATION_CONFIGURATION;
 
 const metadata = {
   name: "Squary",
