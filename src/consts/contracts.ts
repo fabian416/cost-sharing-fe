@@ -4,7 +4,7 @@ import DEV_ERC20_ABI from "../../src/abi/dev/ERC20.json"
 const DEVELOPMENT_CONFIGURATION = {
     contracts: {
       SQUARY_CONTRACT: {
-        address: "0x364f3828A0FD4A7087590b2F5C083F3CD0AE6d7B", // BASE Test address
+        address: "0xFC5208079683746b88F792333159CF631e63fF80", // BASE Test address
         abi: DEV_SQUARY_ABI
       },
       USDT_CONTRACT: {

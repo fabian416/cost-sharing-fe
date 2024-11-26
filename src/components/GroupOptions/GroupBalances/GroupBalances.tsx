@@ -5,7 +5,7 @@ import styles from './GroupBalances.module.css';
 
 // Apollo Client setup
 const client = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/49377/balances/0.0.2',
+  uri: 'https://api.studio.thegraph.com/query/49377/balances/v0.0.2',
   cache: new InMemoryCache(),
 });
 
