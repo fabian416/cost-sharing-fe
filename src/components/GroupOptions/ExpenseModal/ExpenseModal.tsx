@@ -5,34 +5,34 @@ import styles from './ExpenseModal.module.css';
 interface ExpenseModalProps {
   show: boolean;
   handleClose: () => void;
-  addExpense: (amount: number, description: string, sharedWith: string[]) => void;
+  addExpense: (amount: number, description: string, sharedWith: string[], paidBy: string) => void;
   groupMembers: string[];
-  paidBy: string; // Añadir la dirección de la persona que propone el gasto
+  paidBy: string; // Dirección del miembro que propone el gasto
 }
 
 const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers, paidBy }) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [payer, setPayer] = useState(paidBy);
 
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-  
-    // Permitir cualquier texto excepto solo números
-    if (!/^\d+$/.test(value) || value === '') {
-      setDescription(value);
-    } else {
-      alert('Description cannot be only numbers.');
+  // Inicializa el estado al abrir el modal
+  useEffect(() => {
+    if (show) {
+      setPayer(paidBy); // Inicializa el pagador
+      setSelectedMembers(groupMembers.filter(member => member !== paidBy)); // Excluye al pagador de los miembros compartidos
     }
+  }, [show, groupMembers, paidBy]);
+
+  // Maneja el cambio de pagador
+  const handlePayerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newPayer = e.target.value;
+    setPayer(newPayer);
+    // Actualiza los miembros compartidos excluyendo al nuevo pagador
+    setSelectedMembers(groupMembers.filter(member => member !== newPayer));
   };
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (/^\d*\.?\d*$/.test(value)) { // Permitir solo números
-      setAmount(value);
-    }
-  };
-
+  // Maneja la selección de miembros con quienes compartir
   const handleMemberSelect = (member: string) => {
     if (selectedMembers.includes(member)) {
       setSelectedMembers(selectedMembers.filter(m => m !== member));
@@ -41,6 +41,25 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
     }
   };
 
+  // Maneja cambios en el campo de descripción
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (!/^\d+$/.test(value) || value === '') {
+      setDescription(value);
+    } else {
+      alert('Description cannot be only numbers.');
+    }
+  };
+
+  // Maneja cambios en el campo de cantidad
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*(\.\d{0,2})?$/.test(value)) {
+      setAmount(value);
+    }
+  };
+
+  // Maneja la validación y el envío del formulario
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsedAmount = parseFloat(amount);
@@ -49,21 +68,15 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
       alert('Description cannot be empty or only numbers.');
       return;
     }
-    
+
     if (!parsedAmount || parsedAmount <= 0 || selectedMembers.length === 0) {
       alert('Please fill in all fields with valid values.');
       return;
     }
-    addExpense(parsedAmount, description, selectedMembers);
+
+    addExpense(parsedAmount, description, selectedMembers, payer); // Incluye el pagador en el gasto
     handleClose();
   };
-
-  useEffect(() => {
-    if (show) {
-      // Inicializa los miembros seleccionados con todos los miembros excepto el pagador
-      setSelectedMembers(groupMembers.filter(member => member !== paidBy));
-    }
-  }, [show, groupMembers, paidBy]);
 
   return (
     <Modal
@@ -80,26 +93,36 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
       <form onSubmit={handleSubmit} className={styles.modalBody}>
         <div className={styles.formGroup}>
           <label>Description:</label>
-            <input
-              type="text"
-              value={description}
-              onChange={handleDescriptionChange}
-              placeholder="Enter description"
-            />
+          <input
+            type="text"
+            value={description}
+            onChange={handleDescriptionChange}
+            placeholder="Enter description"
+          />
         </div>
         <div className={styles.formGroup}>
           <label>Amount:</label>
-            <input
-              type="text"
-              value={amount}
-              onChange={handleAmountChange}
-              placeholder="Enter amount"
-            />
+          <input
+            type="text"
+            value={amount}
+            onChange={handleAmountChange}
+            placeholder="Enter amount"
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Paid By:</label>
+          <select value={payer} onChange={handlePayerChange}>
+            {groupMembers.map((member, index) => (
+              <option key={index} value={member}>
+                {member}
+              </option>
+            ))}
+          </select>
         </div>
         <div className={styles.formGroup}>
           <label>Share With:</label>
           <div className={styles.membersList}>
-            {groupMembers.filter(member => member !== paidBy).map((member, index) => (
+            {groupMembers.filter(member => member !== payer).map((member, index) => (
               <button
                 key={index}
                 type="button"
@@ -111,7 +134,13 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
             ))}
           </div>
         </div>
-        <button type="submit" className={styles.addButton}>Add Expense</button>
+        <button
+          type="submit"
+          className={styles.addButton}
+          disabled={!description || /^\d+$/.test(description) || parseFloat(amount) <= 0 || selectedMembers.length === 0}
+        >
+          Add Expense
+        </button>
       </form>
     </Modal>
   );

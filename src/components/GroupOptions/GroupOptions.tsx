@@ -188,11 +188,11 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
       await handleDepositFunds(amount);
     }
   };
-  const handleAddExpense = async (amount: number, description: string, sharedWith: string[]) => {
+  const handleAddExpense = async (amount: number, description: string, sharedWith: string[], paidBy: string) => {
     const newExpense = {
       amount,
       description,
-      paidBy: currentUser,
+      paidBy,
       sharedWith,
       settled: false,
       timestamp: Timestamp.fromDate(new Date())
