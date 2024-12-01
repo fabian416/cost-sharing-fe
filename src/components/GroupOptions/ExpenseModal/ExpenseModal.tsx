@@ -15,6 +15,17 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
   const [description, setDescription] = useState('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+  
+    // Permitir cualquier texto excepto solo números
+    if (!/^\d+$/.test(value) || value === '') {
+      setDescription(value);
+    } else {
+      alert('Description cannot be only numbers.');
+    }
+  };
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (/^\d*\.?\d*$/.test(value)) { // Permitir solo números
@@ -33,14 +44,20 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsedAmount = parseFloat(amount);
-    if (!description || !parsedAmount || parsedAmount <= 0 || selectedMembers.length === 0) {
+
+    if (!description || /^\d+$/.test(description)) {
+      alert('Description cannot be empty or only numbers.');
+      return;
+    }
+    
+    if (!parsedAmount || parsedAmount <= 0 || selectedMembers.length === 0) {
       alert('Please fill in all fields with valid values.');
       return;
     }
     addExpense(parsedAmount, description, selectedMembers);
     handleClose();
   };
-  
+
   useEffect(() => {
     if (show) {
       // Inicializa los miembros seleccionados con todos los miembros excepto el pagador
@@ -66,7 +83,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
             <input
               type="text"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={handleDescriptionChange}
               placeholder="Enter description"
             />
         </div>
