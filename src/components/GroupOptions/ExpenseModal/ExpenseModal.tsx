@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import styles from './ExpenseModal.module.css';
 
@@ -32,13 +32,21 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (amount && description && selectedMembers.length > 0) {
-      addExpense(parseFloat(amount), description, selectedMembers);
-      handleClose();
-    } else {
-      alert('Please fill in all fields.');
+    const parsedAmount = parseFloat(amount);
+    if (!description || !parsedAmount || parsedAmount <= 0 || selectedMembers.length === 0) {
+      alert('Please fill in all fields with valid values.');
+      return;
     }
+    addExpense(parsedAmount, description, selectedMembers);
+    handleClose();
   };
+  
+  useEffect(() => {
+    if (show) {
+      // Inicializa los miembros seleccionados con todos los miembros excepto el pagador
+      setSelectedMembers(groupMembers.filter(member => member !== paidBy));
+    }
+  }, [show, groupMembers, paidBy]);
 
   return (
     <Modal
