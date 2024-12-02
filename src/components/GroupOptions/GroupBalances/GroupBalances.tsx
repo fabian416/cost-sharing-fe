@@ -3,6 +3,7 @@ import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { ethers } from 'ethers';
 import styles from './GroupBalances.module.css';
 import { useUser } from '../../../utils/UserContext'; 
+import { useENS } from '../../../hooks/useEns';
 
 // Apollo Client setup
 const client = new ApolloClient({
@@ -91,15 +92,6 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
     console.log("Processed balances updated:", formattedBalances);
   }, [balances, aliases]);
 
-  // It will try to get alias or return a short address
-  const getAliasOrShortAddress = (address: string): string => {
-    const normalizedAddress = address?.toLowerCase() || '';
-    const normalizedAliases = Object.keys(aliases).reduce((acc, key) => {
-      acc[key.toLowerCase()] = aliases[key];
-      return acc;
-    }, {} as Record<string, string>);
-    return normalizedAliases[normalizedAddress] || `${address.substring(0, 6)}...${address.slice(-4)}`;
-  };
 
   const owingBalances = processedBalances.filter((b) => b.rawBalance < 0).map((debtor) => {
     const creditor = processedBalances.find(
@@ -121,9 +113,13 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
       </div>
       <div className={styles.groupContainer}>
         <h3 className={styles.subTitle}>Debts</h3>
-          <ul className={styles.debtsList}>
-            {owingBalances.length > 0 ? (
-              owingBalances.map((balance) => (
+        <ul className={styles.debtsList}>
+          {owingBalances.length > 0 ? (
+            owingBalances.map((balance) => {
+              const { resolvedName: debtorName, isLoading: loadingDebtor } = useENS(balance.member);
+              const { resolvedName: creditorName, isLoading: loadingCreditor } = useENS(balance.creditor || '');
+  
+              return (
                 <li
                   key={balance.id}
                   className={styles.debtCard}
@@ -132,31 +128,49 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
                     color: '#721c24',
                   }}
                 >
-                  <span className={styles.member}>{getAliasOrShortAddress(balance.member)}</span>{' '}
-                  owes <span className={styles.amount}>${Math.abs(balance.rawBalance).toFixed(2)}</span>{' '}
-                  to <span className={styles.creditor}>{getAliasOrShortAddress(balance.creditor)}</span>
+                  <span className={styles.member}>
+                    {loadingDebtor ? 'Loading...' : debtorName}
+                  </span>{' '}
+                  owes{' '}
+                  <span className={styles.amount}>
+                    ${Math.abs(balance.rawBalance).toFixed(2)}
+                  </span>{' '}
+                  to{' '}
+                  <span className={styles.creditor}>
+                    {loadingCreditor ? 'Loading...' : creditorName}
+                  </span>
                 </li>
-              ))
-            ) : (
-              <p>No debts found for this group.</p>
-            )}
-          </ul>
+              );
+            })
+          ) : (
+            <p>No debts found for this group.</p>
+          )}
+        </ul>
         <h3 className={styles.subTitle}>Available Balances</h3>
         <ul className={styles.debtsList}>
           {availableBalances.length > 0 ? (
-            availableBalances.map((balance) => (
-              <li
-                key={balance.id}
-                className={styles.debtCard}
-                style={{
-                  border: '2px solid #218838',
-                  color: '#155724',
-                }}
-              >
-                <span className={styles.member}>{getAliasOrShortAddress(balance.member)}</span>{' '}
-                available <span className={styles.amount}>${balance.available.toFixed(2)}</span>
-              </li>
-            ))
+            availableBalances.map((balance) => {
+              const { resolvedName: memberName, isLoading: loadingMember } = useENS(balance.member);
+  
+              return (
+                <li
+                  key={balance.id}
+                  className={styles.debtCard}
+                  style={{
+                    border: '2px solid #218838',
+                    color: '#155724',
+                  }}
+                >
+                  <span className={styles.member}>
+                    {loadingMember ? 'Loading...' : memberName}
+                  </span>{' '}
+                  available{' '}
+                  <span className={styles.amount}>
+                    ${balance.available.toFixed(2)}
+                  </span>
+                </li>
+              );
+            })
           ) : (
             <p>No available balances for this group.</p>
           )}
