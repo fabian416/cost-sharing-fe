@@ -68,7 +68,7 @@ const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
             <li key={index} className={styles.expenseItem}>
               <div className={styles.expenseHeader}>
                 <span className={styles.expenseDescription}>{expense.description}</span>
-                <span className={styles.expenseAmount}> $ {expense.amount}</span>
+                <span className={styles.expenseAmount}> ${expense.amount}</span>
               </div>
               <div className={styles.expenseDetails}>
                 <span> Paid by: {expense.paidBy}</span>
