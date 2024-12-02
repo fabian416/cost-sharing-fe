@@ -1,44 +1,26 @@
+import { firestore } from '../firebaseConfig';
+import { collection, getDocs } from 'firebase/firestore';
 import { ethers } from 'ethers';
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 import { APPLICATION_CONFIGURATION } from '../consts/contracts';
 
-interface Debt {
-  debtor: string;
-  creditor: string;
-  amount: ethers.BigNumber;
-}
+const SQUARY_V2_CONTRACT_ADDRESS = APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address;
+const SQUARY_V2_CONTRACT_ABI = APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi;
 
-export const useSettleDebts = () => {
-  const { walletProvider } = useWeb3ModalProvider();
-  const SQUARY_V2_CONTRACT_ADDRESS = APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address;
-  const SQUARY_V2_CONTRACT_ABI = APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi;
+export const fetchSimplifiedDebts = async (groupId: string) => {
+  const debtsCollectionRef = collection(firestore, 'groups', groupId, 'simplifiedDebts');
+  const debtsSnapshot = await getDocs(debtsCollectionRef);
+  const debts = debtsSnapshot.docs.map(doc => doc.data() as { debtor: string, creditor: string, amount: number });
+  return debts;
+};
 
-  const settleDebtsWithSignatures = async (groupId: string, debts: Debt[], signatures: string[]) => {
-    if (!walletProvider || !SQUARY_V2_CONTRACT_ABI) {
-      console.error('Wallet provider or ABI is missing');
-      return;
-    }
+export const settleDebts = async (walletProvider: ethers.providers.ExternalProvider, groupId: string, signatures: string[]) => {
+  const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
+  const signer = ethersProvider.getSigner();
+  const contract = new ethers.Contract(SQUARY_V2_CONTRACT_ADDRESS, SQUARY_V2_CONTRACT_ABI, signer);
 
-    try {
-      const ethersProvider = new ethers.providers.Web3Provider(walletProvider as ethers.providers.ExternalProvider);
-      const signer = ethersProvider.getSigner();
-      const contract = new ethers.Contract(SQUARY_V2_CONTRACT_ADDRESS, SQUARY_V2_CONTRACT_ABI, signer);
+  const debts = await fetchSimplifiedDebts(groupId);
 
-      console.log('Debts:', debts);
-      console.log('Signatures:', signatures);
-
-      if (debts.length === 0) {
-        console.error('No debts provided');
-        return;
-      }
-
-      const tx = await contract.settleDebtsWithSignatures(groupId, debts, signatures);
-      const receipt = await tx.wait();
-      console.log('Settle debts transaction successful:', receipt);
-    } catch (error) {
-      console.error('Error executing settleDebtsWithSignatures:', error);
-    }
-  };
-
-  return settleDebtsWithSignatures;
+  const tx = await contract.settleDebtsWithSignatures(groupId, debts, signatures);
+  await tx.wait();
+  console.log('Debts settled successfully');
 };
