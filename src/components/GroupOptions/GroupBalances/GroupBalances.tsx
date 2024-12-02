@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { ethers } from 'ethers';
 import styles from './GroupBalances.module.css';
-import { useENS } from '../../../hooks/useEns';
+import { useEnsName } from 'wagmi';
+import { useUser } from '../../../utils/UserContext';
 
 // Apollo Client setup
 const client = new ApolloClient({
@@ -54,7 +55,6 @@ export const fetchBalances = async (groupId: string): Promise<Balance[]> => {
   }
 };
 
-
 const calculateNetAvailable = (balances: Balance[], memberAddress: string): number => {
   console.log(`Calculating net available for member: ${memberAddress}`);
 
@@ -71,10 +71,26 @@ const calculateNetAvailable = (balances: Balance[], memberAddress: string): numb
   const netAvailable = Math.max(userDeposits - debtsOwedByUser, 0);
   return netAvailable;
 };
+
+// Componente auxiliar para resolver nombres con prioridad ENS > Alias > Dirección abreviada
+const ENSName: React.FC<{ address: string }> = ({ address }) => {
+  const { data: ensName } = useEnsName({
+    address: address as `0x${string}`,
+    chainId: 1, // Sepolia o Mainnet
+  });
+  const { aliases } = useUser();
+
+  const resolveName = (): string => {
+    if (ensName) return ensName; // Si hay ENS
+    if (aliases[address.toLowerCase()]) return aliases[address.toLowerCase()]; // Si hay alias
+    return `${address.substring(0, 6)}...${address.slice(-4)}`; // Dirección abreviada
+  };
+
+  return <>{resolveName()}</>;
+};
+
 const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
   const [processedBalances, setProcessedBalances] = useState<ProcessedBalance[]>([]);
-  const [ensNames, setEnsNames] = useState<Record<string, string>>({}); 
-
 
   useEffect(() => {
     console.log("Balances received in GroupBalances:", balances);
@@ -91,19 +107,6 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
     console.log("Processed balances updated:", formattedBalances);
   }, [balances]);
 
-  useEffect(() => {
-    // Resuelve nombres ENS para todos los miembros
-    const resolveEnsNames = async () => {
-      const resolvedNames: Record<string, string> = {};
-      for (const balance of balances) {
-        const { resolvedName } = useENS(balance.member);
-        resolvedNames[balance.member] = resolvedName || `${balance.member.substring(0, 6)}...${balance.member.slice(-4)}`;
-      }
-      setEnsNames(resolvedNames);
-    };
-    resolveEnsNames();
-  }, [balances]);
-
   const owingBalances = processedBalances.filter((b) => b.rawBalance < 0).map((debtor) => {
     const creditor = processedBalances.find(
       (b) => b.rawBalance > 0 && b.member !== debtor.member
@@ -117,69 +120,69 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
   const availableBalances = processedBalances.filter((b) => b.available > 0);
   
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Balances</h2>
-        <span className={styles.status}>• Confirmed</span>
-      </div>
-      <div className={styles.groupContainer}>
-        <h3 className={styles.subTitle}>Debts</h3>
-        <ul className={styles.debtsList}>
-          {owingBalances.length > 0 ? (
-            owingBalances.map((balance) => (
-              <li
-                key={balance.id}
-                className={styles.debtCard}
-                style={{
-                  border: '2px solid #c82333',
-                  color: '#721c24',
-                }}
-              >
-                <span className={styles.member}>
-                  {ensNames[balance.member] || `${balance.member.substring(0, 6)}...${balance.member.slice(-4)}`}
-                </span>{' '}
-                owes{' '}
-                <span className={styles.amount}>
-                  ${Math.abs(balance.rawBalance).toFixed(2)}
-                </span>{' '}
-                to{' '}
-                <span className={styles.creditor}>
-                  {ensNames[balance.creditor || ''] || `${(balance.creditor || '').substring(0, 6)}...${(balance.creditor || '').slice(-4)}`}
-                </span>
-              </li>
-            ))
-          ) : (
-            <p>No debts found for this group.</p>
-          )}
-        </ul>
-        <h3 className={styles.subTitle}>Available Balances</h3>
-        <ul className={styles.debtsList}>
-          {availableBalances.length > 0 ? (
-            availableBalances.map((balance) => (
-              <li
-                key={balance.id}
-                className={styles.debtCard}
-                style={{
-                  border: '2px solid #218838',
-                  color: '#155724',
-                }}
-              >
-                <span className={styles.member}>
-                  {ensNames[balance.member] || `${balance.member.substring(0, 6)}...${balance.member.slice(-4)}`}
-                </span>{' '}
-                available{' '}
-                <span className={styles.amount}>
-                  ${balance.available.toFixed(2)}
-                </span>
-              </li>
-            ))
-          ) : (
-            <p>No available balances for this group.</p>
-          )}
-        </ul>
-      </div>
+  <div className={styles.container}>
+    <div className={styles.header}>
+      <h2 className={styles.title}>Balances</h2>
+      <span className={styles.status}>• Confirmed</span>
     </div>
-  );
+    <div className={styles.groupContainer}>
+      <h3 className={styles.subTitle}>Debts</h3>
+      <ul className={styles.debtsList}>
+        {owingBalances.length > 0 ? (
+          owingBalances.map((balance) => (
+            <li
+              key={balance.id}
+              className={styles.debtCard}
+              style={{
+                border: '2px solid #c82333',
+                color: '#721c24',
+              }}
+            >
+              <span className={styles.member}>
+                <ENSName address={balance.member} />
+              </span>{' '}
+              owes{' '}
+              <span className={styles.amount}>
+                ${Math.abs(balance.rawBalance).toFixed(2)}
+              </span>{' '}
+              to{' '}
+              <span className={styles.creditor}>
+                {balance.creditor && <ENSName address={balance.creditor} />}
+              </span>
+            </li>
+          ))
+        ) : (
+          <p>No debts found for this group.</p>
+        )}
+      </ul>
+      <h3 className={styles.subTitle}>Available Balances</h3>
+      <ul className={styles.debtsList}>
+        {availableBalances.length > 0 ? (
+          availableBalances.map((balance) => (
+            <li
+              key={balance.id}
+              className={styles.debtCard}
+              style={{
+                border: '2px solid #218838',
+                color: '#155724',
+              }}
+            >
+              <span className={styles.member}>
+                <ENSName address={balance.member} />
+              </span>{' '}
+              available{' '}
+              <span className={styles.amount}>
+                ${balance.available.toFixed(2)}
+              </span>
+            </li>
+          ))
+        ) : (
+          <p>No available balances for this group.</p>
+        )}
+      </ul>
+    </div>
+  </div>
+);
 };
 
 export default GroupBalances;

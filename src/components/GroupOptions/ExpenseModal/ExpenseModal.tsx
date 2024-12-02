@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import styles from './ExpenseModal.module.css';
-import { useENS } from '../../../hooks/useEns';
+
+import { useEnsName } from 'wagmi';
+import { useUser } from '../../../utils/UserContext';
 
 interface ExpenseModalProps {
   show: boolean;
@@ -10,6 +12,23 @@ interface ExpenseModalProps {
   groupMembers: string[];
   paidBy: string; // Dirección del miembro que propone el gasto
 }
+
+// Componente auxiliar para resolver nombres con prioridad ENS > Alias > Dirección abreviada
+const ENSName: React.FC<{ address: string }> = ({ address }) => {
+  const { data: ensName } = useEnsName({
+    address: address as `0x${string}`,
+    chainId: 1, // Sepolia o Mainnet
+  });
+  const { aliases } = useUser();
+
+  const resolveName = (): string => {
+    if (ensName) return ensName; // Si hay ENS
+    if (aliases[address.toLowerCase()]) return aliases[address.toLowerCase()]; // Si hay alias
+    return `${address.substring(0, 6)}...${address.slice(-4)}`; // Dirección abreviada
+  };
+
+  return <>{resolveName()}</>;
+};
 
 const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers, paidBy }) => {
   const [amount, setAmount] = useState('');
@@ -113,32 +132,26 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
         <div className={styles.formGroup}>
           <label>Paid By:</label>
           <select value={payer} onChange={handlePayerChange}>
-            {groupMembers.map((member, index) => {
-              const { resolvedName, isLoading } = useENS(member);
-              return (
-                <option key={index} value={member}>
-                  {isLoading ? 'Loading...' : resolvedName}
-                </option>
-              );
-            })}
+            {groupMembers.map((member, index) => (
+              <option key={index} value={member}>
+                <ENSName address={member} />
+              </option>
+            ))}
           </select>
         </div>
         <div className={styles.formGroup}>
           <label>Share With:</label>
           <div className={styles.membersList}>
-            {groupMembers.filter(member => member !== payer).map((member, index) => {
-              const { resolvedName, isLoading } = useENS(member);
-              return (
-                <button
-                  key={index}
-                  type="button"
-                  className={`${styles.memberButton} ${selectedMembers.includes(member) ? styles.selected : ''}`}
-                  onClick={() => handleMemberSelect(member)}
-                >
-                  {isLoading ? 'Loading...' : resolvedName}
-                </button>
-              );
-            })}
+            {groupMembers.filter(member => member !== payer).map((member, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`${styles.memberButton} ${selectedMembers.includes(member) ? styles.selected : ''}`}
+                onClick={() => handleMemberSelect(member)}
+              >
+                <ENSName address={member} />
+              </button>
+            ))}
           </div>
         </div>
         <button

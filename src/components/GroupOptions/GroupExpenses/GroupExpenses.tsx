@@ -3,6 +3,7 @@ import { firestore } from '../../../firebaseConfig';
 import { collection, onSnapshot, DocumentData, QuerySnapshot, Timestamp } from 'firebase/firestore';
 import styles from './GroupExpenses.module.css';
 import { useEnsName } from 'wagmi';
+import { useUser } from '../../../utils/UserContext';
 import { sepolia } from 'viem/chains';
 
 interface GroupExpensesProps {
@@ -18,13 +19,21 @@ interface Expense {
   timestamp: Timestamp; // Puedes usar Date si conviertes los timestamps a Date
 }
 
-// Componente auxiliar para resolver ENS y mostrar el nombre
 const ENSName: React.FC<{ address: string }> = ({ address }) => {
   const { data: ensName } = useEnsName({
     address: address as `0x${string}`,
     chainId: sepolia.id, // Sepolia
   });
-  return <>{ensName || `${address.substring(0, 6)}...${address.slice(-4)}`}</>;
+  const { aliases } = useUser();
+
+  // Resolver con prioridad: ENS > Alias > Dirección abreviada
+  const resolveName = (): string => {
+    if (ensName) return ensName; // Si hay ENS, retorna el ENS
+    if (aliases[address.toLowerCase()]) return aliases[address.toLowerCase()]; // Si hay alias, retorna el alias
+    return `${address.substring(0, 6)}...${address.slice(-4)}`; // Si no hay, retorna la dirección abreviada
+  };
+
+  return <>{resolveName()}</>;
 };
 
 const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
