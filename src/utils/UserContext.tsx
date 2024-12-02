@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useWeb3ModalAccount } from '@web3modal/ethers5/react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import { fetchAliases } from '../utils/fireBaseService';
 
 interface UserContextType {
-  currentUser: string | null; // Dirección de la wallet (o null si no está conectada)
-  isConnected: boolean;
-  aliases: Record<string, string>; // Alias cargados desde Firebase
+  currentUser: string | null; // Address of the connected wallet (or null if disconnected)
+  isConnected: boolean; // Indicates if a wallet is connected
+  aliases: Record<string, string>; // Aliases fetched from Firebase
 }
 
 const UserContext = createContext<UserContextType>({
@@ -15,34 +15,29 @@ const UserContext = createContext<UserContextType>({
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const { address, isConnected, status } = useAccount(); // Wagmi's `useAccount` hook
   const [aliases, setAliases] = useState<Record<string, string>>({});
-  const { address, isConnected: walletConnected } = useWeb3ModalAccount();
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
 
   useEffect(() => {
-    if (walletConnected && address) {
-      setCurrentUser(address);
-      setIsConnected(true);
-
-      // Cargar alias para el usuario conectado
+    if (status === 'connected' && address) {
+      setCurrentUser(address); // Set the current user's address
+      // Fetch aliases from Firebase
       const loadAliases = async () => {
         try {
           const aliasData = await fetchAliases(address);
-          console.log("alias data succesfully got it: ", aliasData);
+          console.log('Fetched aliases:', aliasData);
           setAliases(aliasData);
         } catch (error) {
           console.error('Error fetching aliases:', error);
         }
       };
-
       loadAliases();
-    } else {
+    } else if (status === 'disconnected') {
       setCurrentUser(null);
-      setIsConnected(false);
-      setAliases({}); // Reinicia alias cuando no hay conexión
+      setAliases({});
     }
-  }, [address, walletConnected]);
+  }, [status, address]);
 
   return (
     <UserContext.Provider value={{ currentUser, isConnected, aliases }}>

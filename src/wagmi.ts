@@ -1,11 +1,12 @@
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { arbitrum, base, mainnet, optimism, polygon } from 'wagmi/chains';
+import { base, mainnet,baseSepolia } from 'wagmi/chains';
+import '@rainbow-me/rainbowkit/styles.css';
 
 const projectId = process.env.VITE_WEB3_PROJECT_ID || "PROJECT_ID_NEEDED";
 
 export const config = getDefaultConfig({
-  appName: 'RainbowKit demo',
+  appName: 'Squary',
   projectId: projectId,
-  chains: [mainnet, polygon, optimism, arbitrum, base],
+  chains: [baseSepolia, mainnet, base,],
 });

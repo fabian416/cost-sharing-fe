@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Sidebar from '../../components/SideBar/SideBar';
-import ConnectButton from '../../components/ConnectButton/ConnectButton';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Outlet, useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 import { useUser } from '../../utils/UserContext'; // Importa el UserContext
