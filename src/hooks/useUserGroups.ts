@@ -1,25 +1,26 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ethers } from 'ethers';
-import { useWeb3ModalAccount, useWeb3ModalProvider } from '@web3modal/ethers5/react';
-import { APPLICATION_CONFIGURATION } from '../consts/contracts';
+import { useState, useEffect, useCallback } from "react";
+import { useEthersProvider } from "./ethersHooks";
+import { APPLICATION_CONFIGURATION } from "../consts/contracts";
+import { ethers } from "ethers";
+import { useUser } from '../utils/UserContext'; 
 
 export const useUserGroups = () => {
-  const { address } = useWeb3ModalAccount();
-  const { walletProvider } = useWeb3ModalProvider();
-  const SQUARY_V2_CONTRACT_ADDRESS = APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address;
-  const SQUARY_V2_CONTRACT_ABI = APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi;
+  const provider = useEthersProvider(); // Obtiene el proveedor de ethers.js
   const [groups, setGroups] = useState<{ id: string; name: string }[]>([]);
-
+  const { currentUser } = useUser(); 
   const fetchGroups = useCallback(async () => {
-    if (!walletProvider || !SQUARY_V2_CONTRACT_ABI || !address) {
-      console.error('Provider, ABI or account is missing');
+    if (!provider) {
+      console.error("Provider no encontrado");
       return;
     }
 
     try {
-      const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
-      const contract = new ethers.Contract(SQUARY_V2_CONTRACT_ADDRESS, SQUARY_V2_CONTRACT_ABI, ethersProvider);
-      const groupIds = await contract.getUserGroups(address);
+      const contract = new ethers.Contract(
+        APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
+        APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi,
+        provider
+      );
+      const groupIds = await contract.getUserGroups(currentUser);
       const groupDetails = await Promise.all(
         groupIds.map(async (groupId: string) => {
           const [name] = await contract.getGroupDetails(groupId);
@@ -27,10 +28,10 @@ export const useUserGroups = () => {
         })
       );
       setGroups(groupDetails);
-    } catch (error) { 
-      console.error('Error fetching groups:', error);
+    } catch (error) {
+      console.error("Error obteniendo grupos:", error);
     }
-  }, [walletProvider, SQUARY_V2_CONTRACT_ABI, address, SQUARY_V2_CONTRACT_ADDRESS]);
+  }, [provider]);
 
   useEffect(() => {
     fetchGroups();
