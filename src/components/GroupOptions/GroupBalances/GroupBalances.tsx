@@ -101,12 +101,6 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
     return normalizedAliases[normalizedAddress] || `${address.substring(0, 6)}...${address.slice(-4)}`;
   };
 
-  useEffect(() => {
-    balances.forEach((balance) => {
-      console.log(`Address: ${balance.member}, Alias: ${getAliasOrShortAddress(balance.member)}`);
-    });
-  }, [balances, aliases]);
-
   const owingBalances = processedBalances.filter((b) => b.rawBalance < 0).map((debtor) => {
     const creditor = processedBalances.find(
       (b) => b.rawBalance > 0 && b.member !== debtor.member
