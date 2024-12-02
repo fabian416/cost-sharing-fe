@@ -6,6 +6,7 @@ import { firestore } from '../../../firebaseConfig';
 import { BigNumber, ethers } from 'ethers';
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 import { APPLICATION_CONFIGURATION } from '../../../consts/contracts';
+import { useUser } from '../../../utils/UserContext';
 
 interface Debt {
   debtor: string;
@@ -90,6 +91,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
   const { walletProvider } = useWeb3ModalProvider();
   const [simplifiedDebts, setSimplifiedDebts] = useState<Debt[]>([]);
   const [hasActiveProposalState, setHasActiveProposalState] = useState(hasActiveProposal);
+  const { aliases } = useUser();
   console.log('Has Active Proposal State:', hasActiveProposalState);
 
   useEffect(() => {
@@ -113,6 +115,18 @@ const SettleModal: React.FC<SettleModalProps> = ({
       fetchExpensesAndCalculateDebts();
     }
   }, [show, groupId]);
+
+      // Función para obtener alias o abreviar la dirección
+    const getAliasOrShortAddress = (address: string): string => {
+        if (!address) return 'Unknown';
+        const normalizedAddress = address.toLowerCase();
+        const normalizedAliases = Object.keys(aliases).reduce((acc, key) => {
+          acc[key.toLowerCase()] = aliases[key];
+          return acc;
+        }, {} as Record<string, string>);
+        return normalizedAliases[normalizedAddress] || `${address.substring(0, 6)}...${address.slice(-4)}`;
+    };
+    
 
   const handleProposeSettle = async () => {
     if (!walletProvider) {
@@ -258,11 +272,16 @@ const SettleModal: React.FC<SettleModalProps> = ({
         <ul className={styles.debtsList}>
           {simplifiedDebts.map((debt, index) => (
             <li key={index} className={styles.debtItem}>
-              {debt.debtor} owes {debt.creditor}: ${debt.amount.toFixed(2)}
+              {getAliasOrShortAddress(debt.debtor)} owes {getAliasOrShortAddress(debt.creditor)}: 
+              <span className={styles.amount}> ${debt.amount.toFixed(2)}</span>
             </li>
           ))}
         </ul>
-        <button className={styles.proposeButton} onClick={handleProposeSettle} disabled={hasActiveProposal && userHasSigned}>
+        <button
+          className={styles.proposeButton}
+          onClick={handleProposeSettle}
+          disabled={hasActiveProposal && userHasSigned}
+        >
           {hasActiveProposal ? (userHasSigned ? 'Signed' : 'Sign') : 'Propose Settle'}
         </button>
       </div>
