@@ -6,7 +6,10 @@ import { firestore } from '../../../firebaseConfig';
 import { BigNumber, ethers } from 'ethers';
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 import { APPLICATION_CONFIGURATION } from '../../../consts/contracts';
+import { useEnsName } from 'wagmi';
 import { useUser } from '../../../utils/UserContext';
+import { sepolia } from 'viem/chains';
+
 
 interface Debt {
   debtor: string;
@@ -79,6 +82,23 @@ const calculateSimplifiedDebts = (expenses: Expense[]): Debt[] => {
   return simplifiedDebts;
 };
 
+// Componente auxiliar para resolver nombres con prioridad ENS > Alias > Dirección abreviada
+const ENSName: React.FC<{ address: string }> = ({ address }) => {
+  const { data: ensName } = useEnsName({
+    address: address as `0x${string}`,
+    chainId: sepolia.id, // Sepolia o Mainnet
+  });
+  const { aliases } = useUser();
+
+  const resolveName = (): string => {
+    if (ensName) return ensName; // Si hay ENS
+    if (aliases[address.toLowerCase()]) return aliases[address.toLowerCase()]; // Si hay alias
+    return `${address.substring(0, 6)}...${address.slice(-4)}`; // Dirección abreviada
+  };
+
+  return <>{resolveName()}</>;
+};
+
 const SettleModal: React.FC<SettleModalProps> = ({
   show,
   handleClose,
@@ -91,7 +111,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
   const { walletProvider } = useWeb3ModalProvider();
   const [simplifiedDebts, setSimplifiedDebts] = useState<Debt[]>([]);
   const [hasActiveProposalState, setHasActiveProposalState] = useState(hasActiveProposal);
-  const { aliases } = useUser();
+  
   console.log('Has Active Proposal State:', hasActiveProposalState);
 
   useEffect(() => {
@@ -115,19 +135,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
       fetchExpensesAndCalculateDebts();
     }
   }, [show, groupId]);
-
-      // Función para obtener alias o abreviar la dirección
-    const getAliasOrShortAddress = (address: string): string => {
-        if (!address) return 'Unknown';
-        const normalizedAddress = address.toLowerCase();
-        const normalizedAliases = Object.keys(aliases).reduce((acc, key) => {
-          acc[key.toLowerCase()] = aliases[key];
-          return acc;
-        }, {} as Record<string, string>);
-        return normalizedAliases[normalizedAddress] || `${address.substring(0, 6)}...${address.slice(-4)}`;
-    };
     
-
   const handleProposeSettle = async () => {
     if (!walletProvider) {
       console.error('No wallet provider found');
@@ -272,8 +280,11 @@ const SettleModal: React.FC<SettleModalProps> = ({
         <ul className={styles.debtsList}>
           {simplifiedDebts.map((debt, index) => (
             <li key={index} className={styles.debtItem}>
-              {getAliasOrShortAddress(debt.debtor)} owes {getAliasOrShortAddress(debt.creditor)}: 
-              <span className={styles.amount}> ${debt.amount.toFixed(2)}</span>
+              <span className={styles.member}>
+                <ENSName address={debt.debtor} /> owes{' '}
+                <ENSName address={debt.creditor} />:
+              </span>
+              <span className={styles.amount}>${debt.amount.toFixed(2)}</span>
             </li>
           ))}
         </ul>

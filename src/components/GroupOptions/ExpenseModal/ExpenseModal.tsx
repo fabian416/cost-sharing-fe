@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import styles from './ExpenseModal.module.css';
-
 import { useEnsName } from 'wagmi';
 import { useUser } from '../../../utils/UserContext';
+import { sepolia } from 'viem/chains';
 
 interface ExpenseModalProps {
   show: boolean;
@@ -17,7 +17,7 @@ interface ExpenseModalProps {
 const ENSName: React.FC<{ address: string }> = ({ address }) => {
   const { data: ensName } = useEnsName({
     address: address as `0x${string}`,
-    chainId: 1, // Sepolia o Mainnet
+    chainId: sepolia.id, // Sepolia o Mainnet
   });
   const { aliases } = useUser();
 
