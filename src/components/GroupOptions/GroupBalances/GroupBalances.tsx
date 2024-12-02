@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 import styles from './GroupBalances.module.css';
 import { useEnsName } from 'wagmi';
 import { useUser } from '../../../utils/UserContext';
+import { sepolia } from 'viem/chains';
 
 // Apollo Client setup
 const client = new ApolloClient({
@@ -76,7 +77,7 @@ const calculateNetAvailable = (balances: Balance[], memberAddress: string): numb
 const ENSName: React.FC<{ address: string }> = ({ address }) => {
   const { data: ensName } = useEnsName({
     address: address as `0x${string}`,
-    chainId: 1, // Sepolia o Mainnet
+    chainId: sepolia.id, // Sepolia o Mainnet
   });
   const { aliases } = useUser();
 

@@ -25,12 +25,16 @@ const ENSName: React.FC<{ address: string }> = ({ address }) => {
     chainId: sepolia.id, // Sepolia
   });
   const { aliases } = useUser();
-
   // Resolver con prioridad: ENS > Alias > Dirección abreviada
   const resolveName = (): string => {
+    const normalizedAddress = address.toLowerCase().trim(); // Normalizamos la dirección
+    console.log("Resolviendo nombre para:", normalizedAddress);
+    console.log("ENS encontrado:", ensName);
+    console.log("Alias encontrado:", aliases[normalizedAddress]);
+  
     if (ensName) return ensName; // Si hay ENS, retorna el ENS
-    if (aliases[address.toLowerCase()]) return aliases[address.toLowerCase()]; // Si hay alias, retorna el alias
-    return `${address.substring(0, 6)}...${address.slice(-4)}`; // Si no hay, retorna la dirección abreviada
+    if (aliases[normalizedAddress]) return aliases[normalizedAddress]; // Si hay alias, retorna el alias
+    return `${normalizedAddress.substring(0, 6)}...${normalizedAddress.slice(-4)}`; // Dirección abreviada
   };
 
   return <>{resolveName()}</>;
