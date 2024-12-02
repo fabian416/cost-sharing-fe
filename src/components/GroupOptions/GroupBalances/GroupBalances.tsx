@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { ethers } from 'ethers';
 import styles from './GroupBalances.module.css';
-import { useUser } from '../../../utils/UserContext'; 
 import { useENS } from '../../../hooks/useEns';
 
 // Apollo Client setup
@@ -74,11 +73,11 @@ const calculateNetAvailable = (balances: Balance[], memberAddress: string): numb
 };
 const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
   const [processedBalances, setProcessedBalances] = useState<ProcessedBalance[]>([]);
-  const { aliases } = useUser(); 
+  const [ensNames, setEnsNames] = useState<Record<string, string>>({}); 
+
 
   useEffect(() => {
     console.log("Balances received in GroupBalances:", balances);
-    console.log('Processing balances with aliases:', aliases);
     const formattedBalances = balances.map((balance) => {
       const rawBalance = parseFloat(ethers.utils.formatUnits(balance.balance, 6));
       const available = calculateNetAvailable(balances, balance.member);
@@ -90,8 +89,20 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
     });
     setProcessedBalances(formattedBalances);
     console.log("Processed balances updated:", formattedBalances);
-  }, [balances, aliases]);
+  }, [balances]);
 
+  useEffect(() => {
+    // Resuelve nombres ENS para todos los miembros
+    const resolveEnsNames = async () => {
+      const resolvedNames: Record<string, string> = {};
+      for (const balance of balances) {
+        const { resolvedName } = useENS(balance.member);
+        resolvedNames[balance.member] = resolvedName || `${balance.member.substring(0, 6)}...${balance.member.slice(-4)}`;
+      }
+      setEnsNames(resolvedNames);
+    };
+    resolveEnsNames();
+  }, [balances]);
 
   const owingBalances = processedBalances.filter((b) => b.rawBalance < 0).map((debtor) => {
     const creditor = processedBalances.find(
@@ -115,33 +126,28 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
         <h3 className={styles.subTitle}>Debts</h3>
         <ul className={styles.debtsList}>
           {owingBalances.length > 0 ? (
-            owingBalances.map((balance) => {
-              const { resolvedName: debtorName, isLoading: loadingDebtor } = useENS(balance.member);
-              const { resolvedName: creditorName, isLoading: loadingCreditor } = useENS(balance.creditor || '');
-  
-              return (
-                <li
-                  key={balance.id}
-                  className={styles.debtCard}
-                  style={{
-                    border: '2px solid #c82333',
-                    color: '#721c24',
-                  }}
-                >
-                  <span className={styles.member}>
-                    {loadingDebtor ? 'Loading...' : debtorName}
-                  </span>{' '}
-                  owes{' '}
-                  <span className={styles.amount}>
-                    ${Math.abs(balance.rawBalance).toFixed(2)}
-                  </span>{' '}
-                  to{' '}
-                  <span className={styles.creditor}>
-                    {loadingCreditor ? 'Loading...' : creditorName}
-                  </span>
-                </li>
-              );
-            })
+            owingBalances.map((balance) => (
+              <li
+                key={balance.id}
+                className={styles.debtCard}
+                style={{
+                  border: '2px solid #c82333',
+                  color: '#721c24',
+                }}
+              >
+                <span className={styles.member}>
+                  {ensNames[balance.member] || `${balance.member.substring(0, 6)}...${balance.member.slice(-4)}`}
+                </span>{' '}
+                owes{' '}
+                <span className={styles.amount}>
+                  ${Math.abs(balance.rawBalance).toFixed(2)}
+                </span>{' '}
+                to{' '}
+                <span className={styles.creditor}>
+                  {ensNames[balance.creditor || ''] || `${(balance.creditor || '').substring(0, 6)}...${(balance.creditor || '').slice(-4)}`}
+                </span>
+              </li>
+            ))
           ) : (
             <p>No debts found for this group.</p>
           )}
@@ -149,28 +155,24 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
         <h3 className={styles.subTitle}>Available Balances</h3>
         <ul className={styles.debtsList}>
           {availableBalances.length > 0 ? (
-            availableBalances.map((balance) => {
-              const { resolvedName: memberName, isLoading: loadingMember } = useENS(balance.member);
-  
-              return (
-                <li
-                  key={balance.id}
-                  className={styles.debtCard}
-                  style={{
-                    border: '2px solid #218838',
-                    color: '#155724',
-                  }}
-                >
-                  <span className={styles.member}>
-                    {loadingMember ? 'Loading...' : memberName}
-                  </span>{' '}
-                  available{' '}
-                  <span className={styles.amount}>
-                    ${balance.available.toFixed(2)}
-                  </span>
-                </li>
-              );
-            })
+            availableBalances.map((balance) => (
+              <li
+                key={balance.id}
+                className={styles.debtCard}
+                style={{
+                  border: '2px solid #218838',
+                  color: '#155724',
+                }}
+              >
+                <span className={styles.member}>
+                  {ensNames[balance.member] || `${balance.member.substring(0, 6)}...${balance.member.slice(-4)}`}
+                </span>{' '}
+                available{' '}
+                <span className={styles.amount}>
+                  ${balance.available.toFixed(2)}
+                </span>
+              </li>
+            ))
           ) : (
             <p>No available balances for this group.</p>
           )}

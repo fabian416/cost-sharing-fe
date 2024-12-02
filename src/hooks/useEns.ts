@@ -5,18 +5,24 @@ import { useUser } from '../utils/UserContext';
 export const useENS = (address: string) => {
   const { aliases } = useUser();
 
-  // Validar si el input es una dirección Ethereum
+  // Validar y normalizar la dirección
   const isValidAddress = ethers.utils.isAddress(address);
   const normalizedAddress = isValidAddress ? address.toLowerCase() : '';
 
-  // Hook de Wagmi para resolver ENS
+  // Resolver ENS usando Wagmi
   const { data: ensName, isLoading: loadingENS } = useEnsName({
     address: isValidAddress ? (address as `0x${string}`) : undefined,
-    chainId: 11155111, // Sepolia Testnet o Mainnet (1) si es necesario
+    chainId: 11155111, // Sepolia Testnet o Mainnet (1)
   });
 
+  // Normalizar alias para comparaciones consistentes
+  const normalizedAliases = Object.keys(aliases).reduce((acc, key) => {
+    acc[key.toLowerCase()] = aliases[key];
+    return acc;
+  }, {} as Record<string, string>);
+
   // Resolver Alias si no hay ENS
-  const resolvedAlias = aliases[normalizedAddress] || null;
+  const resolvedAlias = normalizedAliases[normalizedAddress] || null;
 
   // Resolver Dirección Abreviada como última opción
   const abbreviatedAddress = isValidAddress
@@ -24,8 +30,9 @@ export const useENS = (address: string) => {
     : 'Invalid Address';
 
   // Decidir la prioridad
-  const resolvedName =
-    ensName || resolvedAlias || abbreviatedAddress;
+  const resolvedName = ensName || resolvedAlias || abbreviatedAddress;
+
+  console.log("resolved name triggered: ", resolvedName);
 
   return {
     resolvedName,

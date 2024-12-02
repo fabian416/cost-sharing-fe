@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { firestore } from '../../../firebaseConfig';
 import { collection, onSnapshot, DocumentData, QuerySnapshot, Timestamp } from 'firebase/firestore';
 import styles from './GroupExpenses.module.css';
-import { useUser } from '../../../utils/UserContext';
+import { useEnsName } from 'wagmi';
+import { sepolia } from 'viem/chains';
 
 interface GroupExpensesProps {
   groupId: string;
@@ -17,44 +18,40 @@ interface Expense {
   timestamp: Timestamp; // Puedes usar Date si conviertes los timestamps a Date
 }
 
+// Componente auxiliar para resolver ENS y mostrar el nombre
+const ENSName: React.FC<{ address: string }> = ({ address }) => {
+  const { data: ensName } = useEnsName({
+    address: address as `0x${string}`,
+    chainId: sepolia.id, // Sepolia
+  });
+  return <>{ensName || `${address.substring(0, 6)}...${address.slice(-4)}`}</>;
+};
+
 const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const { aliases } = useUser(); // Accede a los aliases desde el contexto
 
-  const getAliasOrShortAddress = (address: string): string => {
-    if (!address) return 'Unknown';
-    const normalizedAddress = address.toLowerCase();
-    const normalizedAliases = Object.keys(aliases).reduce((acc, key) => {
-      acc[key.toLowerCase()] = aliases[key];
-      return acc;
-    }, {} as Record<string, string>);
-    return normalizedAliases[normalizedAddress] || `${address.substring(0, 6)}...${address.slice(-4)}`;
-  };
-
+  // Obtener gastos desde Firestore
   useEffect(() => {
     const expensesRef = collection(firestore, 'groups', groupId, 'expenses');
     const unsubscribe = onSnapshot(expensesRef, (snapshot: QuerySnapshot<DocumentData>) => {
-      const fetchedExpenses: Expense[] = snapshot.docs.map(doc => {
+      const fetchedExpenses: Expense[] = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           amount: data.amount,
           description: data.description,
-          paidBy: getAliasOrShortAddress(data.paidBy), // Convertir dirección a alias o abreviación
-          sharedWith: data.sharedWith
-            .map((member: string) => getAliasOrShortAddress(member)) // Convertir cada miembro a alias o abreviación
-            .filter((member: string) => member !== data.paidBy), // Filtrar al pagador
+          paidBy: data.paidBy,
+          sharedWith: data.sharedWith,
           settled: data.settled,
           timestamp: data.timestamp,
         } as Expense;
       });
 
-      // Filtrar los gastos que ya han sido settleados
-      const unsettledExpenses = fetchedExpenses.filter(expense => !expense.settled);
-      setExpenses(unsettledExpenses);
+      // Filtrar los gastos no settleados
+      setExpenses(fetchedExpenses.filter((expense) => !expense.settled));
     });
 
     return () => unsubscribe(); // Cleanup on unmount
-  }, [groupId, aliases]); // Asegúrate de que el efecto se dispare cuando los aliases cambien
+  }, [groupId]);
 
   return (
     <div className={styles.container}>
@@ -71,8 +68,15 @@ const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
                 <span className={styles.expenseAmount}> ${expense.amount}</span>
               </div>
               <div className={styles.expenseDetails}>
-                <span> Paid by: {expense.paidBy}</span>
-                <span> Shared with: {expense.sharedWith.join(', ')}</span>
+                <span> Paid by: <ENSName address={expense.paidBy} /> </span>
+                <span>
+                   Shared with: {' '}
+                  {expense.sharedWith.map((member) => (
+                    <span key={member}>
+                      <ENSName address={member} />
+                    </span>
+                  ))}
+                </span>
               </div>
             </li>
           ))}
