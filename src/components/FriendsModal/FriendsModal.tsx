@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import styles from '../SettleModal/SettleModal.module.css'; // Reuse styles
+import styles from '../GroupOptions/SettleModal/SettleModal.module.css'; // Reuse styles
 
 interface FriendsModalProps {
   show: boolean;

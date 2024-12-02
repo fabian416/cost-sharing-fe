@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { ethers } from 'ethers';
 import styles from './GroupBalances.module.css';
+import { useUser } from '../../../utils/UserContext'; 
 
 // Apollo Client setup
 const client = new ApolloClient({
@@ -36,6 +37,7 @@ interface ProcessedBalance extends Balance {
 }
 
 export const fetchBalances = async (groupId: string): Promise<Balance[]> => {
+
   try {
     const result = await client.query({
       query: GET_BALANCES,
@@ -71,16 +73,14 @@ const calculateNetAvailable = (balances: Balance[], memberAddress: string): numb
 };
 const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
   const [processedBalances, setProcessedBalances] = useState<ProcessedBalance[]>([]);
+  const { aliases } = useUser(); 
 
   useEffect(() => {
     console.log("Balances received in GroupBalances:", balances);
+    console.log('Processing balances with aliases:', aliases);
     const formattedBalances = balances.map((balance) => {
       const rawBalance = parseFloat(ethers.utils.formatUnits(balance.balance, 6));
       const available = calculateNetAvailable(balances, balance.member);
-      console.log(`Processed balance for member ${balance.member}:`, {
-        rawBalance,
-        available,
-      });
       return {
         ...balance,
         rawBalance,
@@ -89,8 +89,23 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
     });
     setProcessedBalances(formattedBalances);
     console.log("Processed balances updated:", formattedBalances);
-  }, [balances]);
+  }, [balances, aliases]);
 
+  // It will try to get alias or return a short address
+  const getAliasOrShortAddress = (address: string): string => {
+    const normalizedAddress = address?.toLowerCase() || '';
+    const normalizedAliases = Object.keys(aliases).reduce((acc, key) => {
+      acc[key.toLowerCase()] = aliases[key];
+      return acc;
+    }, {} as Record<string, string>);
+    return normalizedAliases[normalizedAddress] || `${address.substring(0, 6)}...${address.slice(-4)}`;
+  };
+
+  useEffect(() => {
+    balances.forEach((balance) => {
+      console.log(`Address: ${balance.member}, Alias: ${getAliasOrShortAddress(balance.member)}`);
+    });
+  }, [balances, aliases]);
 
   const owingBalances = processedBalances.filter((b) => b.rawBalance < 0).map((debtor) => {
     const creditor = processedBalances.find(
@@ -112,26 +127,26 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
       </div>
       <div className={styles.groupContainer}>
         <h3 className={styles.subTitle}>Debts</h3>
-        <ul className={styles.debtsList}>
-          {owingBalances.length > 0 ? (
-            owingBalances.map((balance) => (
-              <li
-                key={balance.id}
-                className={styles.debtCard}
-                style={{
-                  border: '2px solid #c82333',
-                  color: '#721c24',
-                }}
-              >
-                <span className={styles.member}>{balance.member}</span>{' '}
-                owes <span className={styles.amount}>${Math.abs(balance.rawBalance).toFixed(2)}</span>{' '}
-                to <span className={styles.creditor}>{balance.creditor}</span>
-              </li>
-            ))
-          ) : (
-            <p>No debts found for this group.</p>
-          )}
-        </ul>
+          <ul className={styles.debtsList}>
+            {owingBalances.length > 0 ? (
+              owingBalances.map((balance) => (
+                <li
+                  key={balance.id}
+                  className={styles.debtCard}
+                  style={{
+                    border: '2px solid #c82333',
+                    color: '#721c24',
+                  }}
+                >
+                  <span className={styles.member}>{getAliasOrShortAddress(balance.member)}</span>{' '}
+                  owes <span className={styles.amount}>${Math.abs(balance.rawBalance).toFixed(2)}</span>{' '}
+                  to <span className={styles.creditor}>{getAliasOrShortAddress(balance.creditor)}</span>
+                </li>
+              ))
+            ) : (
+              <p>No debts found for this group.</p>
+            )}
+          </ul>
         <h3 className={styles.subTitle}>Available Balances</h3>
         <ul className={styles.debtsList}>
           {availableBalances.length > 0 ? (
@@ -144,7 +159,7 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
                   color: '#155724',
                 }}
               >
-                <span className={styles.member}>{balance.member}</span>{' '}
+                <span className={styles.member}>{getAliasOrShortAddress(balance.member)}</span>{' '}
                 available <span className={styles.amount}>${balance.available.toFixed(2)}</span>
               </li>
             ))

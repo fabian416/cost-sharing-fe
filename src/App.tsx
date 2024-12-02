@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { UserProvider } from './utils/UserContext'; 
 import Home from './views/Home/Home';
 import Dashboard from './views/Dashboard/Dashboard';
 import GeneralPanel from './views/GeneralPanel/GeneralPanel';
@@ -23,7 +24,9 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <RouterProvider router={router} />
+    <UserProvider>
+      <RouterProvider router={router} />
+    </UserProvider>
   );
 }
 
