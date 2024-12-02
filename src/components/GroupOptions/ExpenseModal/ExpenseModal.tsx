@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import styles from './ExpenseModal.module.css';
+import { useUser } from '../../../utils/UserContext';
 
 interface ExpenseModalProps {
   show: boolean;
@@ -15,6 +16,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
   const [description, setDescription] = useState('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [payer, setPayer] = useState(paidBy);
+  const { aliases } = useUser();
 
   // Inicializa el estado al abrir el modal
   useEffect(() => {
@@ -23,6 +25,18 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
       setSelectedMembers(groupMembers.filter(member => member !== paidBy)); // Excluye al pagador de los miembros compartidos
     }
   }, [show, groupMembers, paidBy]);
+
+    // Función para obtener alias o abreviar la dirección
+    const getAliasOrShortAddress = (address: string): string => {
+      if (!address) return 'Unknown';
+      const normalizedAddress = address.toLowerCase();
+      const normalizedAliases = Object.keys(aliases).reduce((acc, key) => {
+        acc[key.toLowerCase()] = aliases[key];
+        return acc;
+      }, {} as Record<string, string>);
+      return normalizedAliases[normalizedAddress] || `${address.substring(0, 6)}...${address.slice(-4)}`;
+    };
+  
 
   // Maneja el cambio de pagador
   const handlePayerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -114,7 +128,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
           <select value={payer} onChange={handlePayerChange}>
             {groupMembers.map((member, index) => (
               <option key={index} value={member}>
-                {member}
+                {getAliasOrShortAddress(member)}
               </option>
             ))}
           </select>
@@ -129,7 +143,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
                 className={`${styles.memberButton} ${selectedMembers.includes(member) ? styles.selected : ''}`}
                 onClick={() => handleMemberSelect(member)}
               >
-                {member}
+                {getAliasOrShortAddress(member)}
               </button>
             ))}
           </div>
