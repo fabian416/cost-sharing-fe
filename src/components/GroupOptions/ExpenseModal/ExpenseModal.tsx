@@ -17,7 +17,7 @@ interface ExpenseModalProps {
 const ENSName: React.FC<{ address: string }> = ({ address }) => {
   const { data: ensName } = useEnsName({
     address: address as `0x${string}`,
-    chainId: sepolia.id, // Sepolia o Mainnet
+    chainId: sepolia.id, // CHANGE TO SEPOLIA MAINNET
   });
   const { aliases } = useUser();
 

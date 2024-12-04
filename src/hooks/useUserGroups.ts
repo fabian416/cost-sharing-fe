@@ -13,7 +13,7 @@ export const useUserGroups = () => {
       console.error("Provider no encontrado");
       return;
     }
-
+    
     try {
       const contract = new ethers.Contract(
         APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
