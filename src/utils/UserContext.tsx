@@ -11,7 +11,7 @@ interface UserContextType {
 const UserContext = createContext<UserContextType>({
   currentUser: null,
   isConnected: false,
-  aliases: {},
+  aliases: {}
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

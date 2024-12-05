@@ -142,8 +142,8 @@ const SettleModal: React.FC<SettleModalProps> = ({
       return;
     }
   
-    const ethersProvider = new ethers.providers.Web3Provider(walletProvider as ethers.providers.ExternalProvider);
-    const signer = ethersProvider.getSigner();
+    const ethersProvider = new ethers.BrowserProvider(walletProvider);
+    const signer = await ethersProvider.getSigner();
     const contract = new ethers.Contract(
       APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
       APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi,
@@ -161,29 +161,29 @@ const SettleModal: React.FC<SettleModalProps> = ({
   
     // Convertir las deudas simplificadas a BigNumber
     const formattedDebts = simplifiedDebts.map(debt => ({
-      debtor: ethers.utils.getAddress(debt.debtor),
-      creditor: ethers.utils.getAddress(debt.creditor),
-      amount: ethers.utils.parseUnits(debt.amount.toString(), 6).toString(),
+      debtor: ethers.getAddress(debt.debtor),
+      creditor: ethers.getAddress(debt.creditor),
+      amount: ethers.parseUnits(debt.amount.toString(), 6).toString(),
     }));
   
     console.log("Simplified Debts:", simplifiedDebts); // Imprimir las deudas simplificadas en consola
   
     const calculateActionHash = (groupId: string, debts: typeof formattedDebts, nonce: BigNumber) => {
-      let hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['bytes32'], [groupId]));
+      let hash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['bytes32'], [groupId]));
       for (const debt of debts) {
-        hash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
+        hash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
           ['bytes32', 'address', 'address', 'uint256'],
           [hash, debt.debtor, debt.creditor, BigNumber.from(debt.amount)]
         ));
       }
-      return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
+      return ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
         ['bytes32', 'string', 'uint256'],
         [hash, 'settleDebts', nonce]
       ));
     };
   
     const actionHashScript = calculateActionHash(groupId, formattedDebts, groupNonce);
-    const signature = await signer.signMessage(ethers.utils.arrayify(actionHashScript));
+    const signature = await signer.signMessage(ethers.getBytes(actionHashScript));
   
     if (!hasActiveProposal) {
       // Crear una nueva propuesta de settle

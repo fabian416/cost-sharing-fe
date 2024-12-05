@@ -1,12 +1,14 @@
+import { createConfig } from 'wagmi';
+import { mainnet, sepolia, base, baseSepolia } from 'wagmi/chains';
+import { http } from 'viem';
 
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { base, baseSepolia, mainnet, sepolia } from 'wagmi/chains';
-import '@rainbow-me/rainbowkit/styles.css';
-
-const projectId = process.env.VITE_WEB3_PROJECT_ID || "PROJECT_ID_NEEDED";
-
-export const config = getDefaultConfig({
-  appName: 'Squary',
-  projectId: projectId,
-  chains: [baseSepolia, mainnet, base, sepolia],
+export const wagmiConfig = createConfig({
+  chains: [mainnet, sepolia, base, baseSepolia],
+  multiInjectedProviderDiscovery: false,
+  transports: {
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+    [base.id]: http(),
+    [baseSepolia.id]: http(),
+  },
 });
