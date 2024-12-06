@@ -8,6 +8,7 @@ import styles from './GroupOptions.module.css';
 import { useEthersSigner } from '../../hooks/ethersHooks'; 
 import { APPLICATION_CONFIGURATION } from '../../consts/contracts';
 import { ethers } from 'ethers';
+import { useUser } from '../../utils/UserContext';
 
 interface GroupOptionsProps {
   groupId: string;
@@ -26,7 +27,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
   const [showWithdrawDepositModal, setShowWithdrawDepositModal] = useState(false); // Added state
   const [modalActionType, setModalActionType] = useState<'Deposit' | 'Withdraw'>('Deposit'); // Added state
   const [groupMembers, setGroupMembers] = useState<string[]>([]);
-  const [currentUser, setCurrentUser] = useState<string>('');
+  const { currentUser } = useUser(); // Usa el contexto
   const [hasActiveProposal, setHasActiveProposal] = useState<boolean>(false);
   const [userHasSigned, setUserHasSigned] = useState<boolean>(false);
   const [settleProposalId, setSettleProposalId] = useState<string>('');
@@ -197,7 +198,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
           Withdraw
         </button>
       </div>
-      {showExpenseModal && (
+      {showExpenseModal && currentUser &&(
         <ExpenseModal
           show={showExpenseModal}
           handleClose={handleCloseExpenseModal}
@@ -206,7 +207,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
           paidBy={currentUser}
         />
       )}
-      {showSettleModal && (
+      {showExpenseModal && currentUser &&(
         <SettleModal
           show={showSettleModal}
           handleClose={handleCloseSettleModal}

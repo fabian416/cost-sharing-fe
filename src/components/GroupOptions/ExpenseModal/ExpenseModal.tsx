@@ -36,11 +36,13 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [payer, setPayer] = useState(paidBy);
 
-  // Inicializa el estado al abrir el modal
   useEffect(() => {
     if (show) {
-      setPayer(paidBy); // Inicializa el pagador
-      setSelectedMembers(groupMembers.filter(member => member !== paidBy)); // Excluye al pagador de los miembros compartidos
+      setPayer(paidBy); // Inicializa el pagador al abrir el modal
+      console.log("PAYER IS: ", paidBy);
+      console.log("Members are: ", groupMembers);
+      setSelectedMembers(groupMembers.filter(member => member !== paidBy)); // Excluye al pagador
+  
     }
   }, [show, groupMembers, paidBy]);
 
@@ -142,16 +144,18 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
         <div className={styles.formGroup}>
           <label>Share With:</label>
           <div className={styles.membersList}>
-            {groupMembers.filter(member => member !== payer).map((member, index) => (
-              <button
-                key={index}
-                type="button"
-                className={`${styles.memberButton} ${selectedMembers.includes(member) ? styles.selected : ''}`}
-                onClick={() => handleMemberSelect(member)}
-              >
-                <ENSName address={member} />
-              </button>
-            ))}
+          {groupMembers
+          .filter(member => member !== payer) // Excluye dinámicamente al pagador
+          .map((member, index) => (
+            <button
+              key={index}
+              type="button"
+              className={`${styles.memberButton} ${selectedMembers.includes(member) ? styles.selected : ''}`}
+              onClick={() => handleMemberSelect(member)}
+            >
+              <ENSName address={member} />
+            </button>
+          ))}
           </div>
         </div>
         <button
