@@ -207,7 +207,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
           paidBy={currentUser}
         />
       )}
-      {showExpenseModal && currentUser &&(
+      {showSettleModal && currentUser &&(
         <SettleModal
           show={showSettleModal}
           handleClose={handleCloseSettleModal}
