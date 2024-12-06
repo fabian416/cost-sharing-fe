@@ -60,12 +60,12 @@ const calculateNetAvailable = (balances: Balance[], memberAddress: string): numb
   console.log(`Calculating net available for member: ${memberAddress}`);
 
   const userBalance = balances.find((b) => b.member === memberAddress)?.balance || '0';
-  const userDeposits = parseFloat(ethers.utils.formatUnits(userBalance, 6));
+  const userDeposits = parseFloat(ethers.formatUnits(userBalance, 6));
 
   const debtsOwedByUser = balances
-    .filter((b) => parseFloat(ethers.utils.formatUnits(b.balance, 6)) < 0)
+    .filter((b) => parseFloat(ethers.formatUnits(b.balance, 6)) < 0)
     .reduce((sum, debt) => {
-      const debtAmount = Math.abs(parseFloat(ethers.utils.formatUnits(debt.balance, 6)));
+      const debtAmount = Math.abs(parseFloat(ethers.formatUnits(debt.balance, 6)));
       return sum + debtAmount;
     }, 0);
 
@@ -96,7 +96,7 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
   useEffect(() => {
     console.log("Balances received in GroupBalances:", balances);
     const formattedBalances = balances.map((balance) => {
-      const rawBalance = parseFloat(ethers.utils.formatUnits(balance.balance, 6));
+      const rawBalance = parseFloat(ethers.formatUnits(balance.balance, 6));
       const available = calculateNetAvailable(balances, balance.member);
       return {
         ...balance,
