@@ -1,23 +1,22 @@
 import { ethers } from 'ethers';
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { setDoc, doc } from 'firebase/firestore';
 import { APPLICATION_CONFIGURATION } from '../consts/contracts';
 import { firestore } from '../firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
+import { useEthersSigner } from './ethersHooks'; // Importa tu hook
 
 export const useCreateGroup = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const signer = useEthersSigner(); // Obtén el signer del hook
   const SQUARY_V2_CONTRACT_ADDRESS = APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address;
   const SQUARY_V2_CONTRACT_ABI = APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi;
 
   const createGroup = async (groupName: string, members: string[], tokenAddress: string, signatureThreshold: string) => {
-    if (!walletProvider || !SQUARY_V2_CONTRACT_ABI) {
-      console.error('Wallet provider or ABI is missing');
+    if (!signer) {
+      console.error('Signer is not available. Please connect a wallet.');
       return;
     }
 
     try {
-      const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
-      const signer = ethersProvider.getSigner();
+      // Inicializa el contrato con el signer
       const contract = new ethers.Contract(SQUARY_V2_CONTRACT_ADDRESS, SQUARY_V2_CONTRACT_ABI, signer);
 
       // Crear el grupo en el smart contract
@@ -26,7 +25,10 @@ export const useCreateGroup = () => {
       console.log('Grupo creado con éxito en el smart contract:', receipt);
 
       // Obtener el ID del grupo del evento
-      const event = receipt.events?.find((event: ethers.Event) => event.event === 'GroupCreated');
+      const event = receipt.logs
+        ?.map((log: ethers.Log) => contract.interface.parseLog(log))
+        .find((parsed: ethers.LogDescription) => parsed?.name === 'GroupCreated');
+
       if (!event || !event.args) {
         throw new Error('Event GroupCreated not found');
       }
@@ -40,7 +42,7 @@ export const useCreateGroup = () => {
         signatureThreshold,
         tokenAddress,
       };
-      await setDoc(doc(firestore, "groups", groupId.toString()), groupData);
+      await setDoc(doc(firestore, 'groups', groupId.toString()), groupData);
       console.log('Grupo creado con éxito en Firestore:', groupData);
 
     } catch (error) {

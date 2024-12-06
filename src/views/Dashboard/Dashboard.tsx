@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Sidebar from '../../components/SideBar/SideBar';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { DynamicWidget } from "@dynamic-labs/sdk-react-core"; // Import DynamicWidget
 import { Outlet, useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 import { useUser } from '../../utils/UserContext'; // Importa el UserContext
@@ -22,7 +22,7 @@ const Dashboard = () => {
       <Sidebar createGroup={createGroup} currentUser={currentUser} /> {/* Pasa currentUser desde el contexto */}
       <div className={styles.mainContent}>
         <div className={styles.topBar}>
-          <ConnectButton />
+        <DynamicWidget />
         </div>
         <Outlet /> {/* Renderiza componentes hijos del Dashboard */}
       </div>

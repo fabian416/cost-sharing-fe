@@ -3,13 +3,12 @@ import Modal from 'react-modal';
 import styles from './SettleModal.module.css';
 import { addDoc, updateDoc, doc, arrayUnion, getDoc, collection, getDocs, writeBatch, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
-import { BigNumber, ethers } from 'ethers';
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { ethers } from 'ethers';
+import { useEthersSigner } from '../../../hooks/ethersHooks'; 
 import { APPLICATION_CONFIGURATION } from '../../../consts/contracts';
 import { useEnsName } from 'wagmi';
 import { useUser } from '../../../utils/UserContext';
 import { sepolia } from 'viem/chains';
-
 
 interface Debt {
   debtor: string;
@@ -108,9 +107,9 @@ const SettleModal: React.FC<SettleModalProps> = ({
   userHasSigned,
   settleProposalId
 }) => {
-  const { walletProvider } = useWeb3ModalProvider();
   const [simplifiedDebts, setSimplifiedDebts] = useState<Debt[]>([]);
   const [hasActiveProposalState, setHasActiveProposalState] = useState(hasActiveProposal);
+  const signer = useEthersSigner(); 
   
   console.log('Has Active Proposal State:', hasActiveProposalState);
 
@@ -137,13 +136,12 @@ const SettleModal: React.FC<SettleModalProps> = ({
   }, [show, groupId]);
     
   const handleProposeSettle = async () => {
-    if (!walletProvider) {
-      console.error('No wallet provider found');
+    if (!signer) {
+      console.error('Signer not found. Please connect a wallet.');
       return;
     }
-  
-    const ethersProvider = new ethers.BrowserProvider(walletProvider);
-    const signer = await ethersProvider.getSigner();
+    
+    try {
     const contract = new ethers.Contract(
       APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
       APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi,
@@ -168,12 +166,12 @@ const SettleModal: React.FC<SettleModalProps> = ({
   
     console.log("Simplified Debts:", simplifiedDebts); // Imprimir las deudas simplificadas en consola
   
-    const calculateActionHash = (groupId: string, debts: typeof formattedDebts, nonce: BigNumber) => {
+    const calculateActionHash = (groupId: string, debts: typeof formattedDebts, nonce: bigint) => {
       let hash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['bytes32'], [groupId]));
       for (const debt of debts) {
         hash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
           ['bytes32', 'address', 'address', 'uint256'],
-          [hash, debt.debtor, debt.creditor, BigNumber.from(debt.amount)]
+          [hash, debt.debtor, debt.creditor, BigInt(debt.amount)]
         ));
       }
       return ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
@@ -263,6 +261,9 @@ const SettleModal: React.FC<SettleModalProps> = ({
       handleClose();
     }
     handleClose()
+  } catch (error) {
+    console.error('Error during the operation:', error);
+  }
   }
 
   return (

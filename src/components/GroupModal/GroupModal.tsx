@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import styles from './GroupModal.module.css';
-import { useWeb3ModalAccount } from '@web3modal/ethers5/react';
+import { useAccount } from 'wagmi'; 
 
 interface GroupModalProps {
   show: boolean;
@@ -16,7 +16,7 @@ const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup,
   const [members, setMembers] = useState<string[]>([]);
   const [tokenAddress, setTokenAddress] = useState('');
   const [signatureThreshold, setSignatureThreshold] = useState('');
-  const { address } = useWeb3ModalAccount();
+  const { address } = useAccount();
 
   const isValidAddress = (address: string) => {
     return /^0x[a-fA-F0-9]{40}$/.test(address);

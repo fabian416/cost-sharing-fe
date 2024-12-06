@@ -5,10 +5,9 @@ import WithdrawDepositModal from './WithdrawDepositModal'; // Ensure this import
 import { firestore } from '../../firebaseConfig';
 import { doc, getDoc, collection, addDoc, onSnapshot, Timestamp } from 'firebase/firestore';
 import styles from './GroupOptions.module.css';
-import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers5/react';
+import { useEthersSigner } from '../../hooks/ethersHooks'; 
 import { APPLICATION_CONFIGURATION } from '../../consts/contracts';
-import { ethers, providers } from 'ethers';
-import { fetchGroupDetails } from './contractInteractions';
+import { ethers } from 'ethers';
 
 interface GroupOptionsProps {
   groupId: string;
@@ -31,34 +30,25 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
   const [hasActiveProposal, setHasActiveProposal] = useState<boolean>(false);
   const [userHasSigned, setUserHasSigned] = useState<boolean>(false);
   const [settleProposalId, setSettleProposalId] = useState<string>('');
-  const { walletProvider } = useWeb3ModalProvider();
-  const { address } = useWeb3ModalAccount();
+  const signer = useEthersSigner(); // Signer desde Viem
 
-  // Current User Management
-  useEffect(() => {
-    if (address) {
-      setCurrentUser(address);
-    }
-  }, [address]);
-
-  // Fetch Group Members from Firestore
-  useEffect(() => {
+   // Obtener miembros del grupo desde Firestore
+   useEffect(() => {
     const fetchGroupMembers = async () => {
       const groupDoc = await getDoc(doc(firestore, 'groups', groupId));
       if (groupDoc.exists()) {
         const groupData = groupDoc.data();
-        if (groupData && groupData.members) {
+        if (groupData?.members) {
           setGroupMembers(groupData.members);
         }
       } else {
         console.error('Group does not exist');
       }
     };
-
     fetchGroupMembers();
   }, [groupId]);
 
-  // Listen for changes in settle proposals
+  // Escuchar cambios en las propuestas de liquidación
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(firestore, 'groups', groupId, 'settleProposals'),
@@ -66,11 +56,10 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
         if (!snapshot.empty) {
           const proposalDoc = snapshot.docs[0];
           const proposalData = proposalDoc.data();
-
           setHasActiveProposal(true);
           setSettleProposalId(proposalDoc.id);
 
-          if (proposalData.signatures.some((sig: Signature) => sig.signer === currentUser)) {
+          if (proposalData.signatures.some((sig: Signature) => sig.signer === signer?.address)) {
             setUserHasSigned(true);
           } else {
             setUserHasSigned(false);
@@ -81,103 +70,65 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
         }
       }
     );
-
     return () => unsubscribe();
-  }, [groupId, currentUser]);
-
-  // Verify Group Details from Contract
-  useEffect(() => {
-    const verifyGroupMembers = async () => {
-      const details = await fetchGroupDetails(groupId, walletProvider as providers.ExternalProvider);
-      if (details) {
-        console.log('Members from contract:', details.members);
-        console.log('Members from Firestore:', groupMembers);
-      }
-    };
-
-    verifyGroupMembers();
-  }, [groupId, groupMembers, walletProvider]);
+  }, [groupId, signer]);
 
   const handleWithdrawFunds = async (amount: number) => {
-    if (!walletProvider) {
-      console.error('No wallet provider found');
+    if (!signer) {
+      console.error('No signer found. Please connect a wallet.');
       return;
     }
-
     try {
-      const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
       const contract = new ethers.Contract(
         APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
         APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi,
-        ethersProvider.getSigner()
+        signer
       );
-
-      const parsedAmount = ethers.utils.parseUnits(amount.toString(), 6);
-      console.log("Parsed amount for deposit:", parsedAmount.toString());
+      const parsedAmount = ethers.parseUnits(amount.toString(), 6);
       const tx = await contract.withdrawFunds(groupId, parsedAmount);
       console.log('Withdraw transaction sent:', tx.hash);
-
       await tx.wait();
-  
-      if (onBalancesUpdate) {
-        onBalancesUpdate(); // Llama a la función de actualización
-      }
+      console.log('Withdrawal confirmed.');
+      onBalancesUpdate?.();
     } catch (error) {
       console.error('Error during withdrawal:', error);
     }
   };
 
   const handleDepositFunds = async (amount: number) => {
-    if (!walletProvider) {
-      console.error('No wallet provider found');
+    if (!signer) {
+      console.error('No signer found. Please connect a wallet.');
       return;
     }
-  
     try {
-      const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
-      const signer = ethersProvider.getSigner();
-  
-      // Contrato del token USDT/USDC
       const erc20Contract = new ethers.Contract(
         APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.address,
-        APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.abi, // ABI del token ERC20
+        APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.abi,
         signer
       );
-  
-      // Contrato principal donde se depositarán los fondos
       const squaryContract = new ethers.Contract(
         APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
         APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi,
         signer
       );
-  
-      // Convertir el monto a BigNumber con 6 decimales (USDT/USDC)
-      const parsedAmount = ethers.utils.parseUnits(amount.toString(), 6);
-      console.log("Parsed amount for deposit:", parsedAmount.toString());
-  
-      // Paso 1: Aprobar el contrato principal para gastar tokens
-      console.log(`Approving ${APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address} to spend ${amount} USDT/USDC...`);
+      const parsedAmount = ethers.parseUnits(amount.toString(), 6);
+
+      // Aprobar tokens para el contrato
       const approveTx = await erc20Contract.approve(
-        APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address, // Contrato principal
+        APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
         parsedAmount
       );
-      console.log("Approve transaction sent:", approveTx.hash);
-  
-      // Esperar confirmación de la transacción de aprobación
+      console.log('Approve transaction sent:', approveTx.hash);
       await approveTx.wait();
-      console.log("Approve transaction confirmed.");
-  
-      // Paso 2: Llamar a la función `depositFunds`
-      console.log("Depositing funds to contract...");
+
+      // Depositar tokens en el contrato
       const depositTx = await squaryContract.depositFunds(groupId, parsedAmount);
-      console.log("Deposit transaction sent:", depositTx.hash);
-  
+      console.log('Deposit transaction sent:', depositTx.hash);
       await depositTx.wait();
-      if (onBalancesUpdate) {
-        onBalancesUpdate(); // Llama a la función de actualización
-      }
+      console.log('Deposit confirmed.');
+      onBalancesUpdate?.();
     } catch (error) {
-      console.error("Error during deposit:", error);
+      console.error('Error during deposit:', error);
     }
   };
 
