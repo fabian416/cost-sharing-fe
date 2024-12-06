@@ -7,13 +7,14 @@ import styles from './Home.module.css';
 const Home = () => {
     const navigate = useNavigate();
     const { isConnected } = useUser(); // Check connection state from your context
-  
+
     useEffect(() => {
-        if (isConnected) {
-            navigate('./dashboard');
+        // Prevent infinite redirection or broken routes
+        if (isConnected && window.location.pathname !== "/dashboard") {
+            navigate("/dashboard");
         }
     }, [isConnected, navigate]);
-  
+
     return (
         <div className={styles.homeContainer}>
             <h1 className={styles.title}>Welcome to Squary</h1>
