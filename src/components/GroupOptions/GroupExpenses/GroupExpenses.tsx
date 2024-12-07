@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { firestore } from '../../../firebaseConfig';
 import { collection, onSnapshot, DocumentData, QuerySnapshot, Timestamp } from 'firebase/firestore';
-import styles from './GroupExpenses.module.css';
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table';
 import { useEnsName } from 'wagmi';
 import { useUser } from '../../../utils/UserContext';
 import { sepolia } from 'viem/chains';
@@ -25,16 +25,12 @@ const ENSName: React.FC<{ address: string }> = ({ address }) => {
     chainId: sepolia.id, // Sepolia
   });
   const { aliases } = useUser();
-  // Resolver con prioridad: ENS > Alias > Dirección abreviada
-  const resolveName = (): string => {
-    const normalizedAddress = address.toLowerCase().trim(); // Normalizamos la dirección
-    console.log("Resolviendo nombre para:", normalizedAddress);
-    console.log("ENS encontrado:", ensName);
-    console.log("Alias encontrado:", aliases[normalizedAddress]);
   
-    if (ensName) return ensName; // Si hay ENS, retorna el ENS
-    if (aliases[normalizedAddress]) return aliases[normalizedAddress]; // Si hay alias, retorna el alias
-    return `${normalizedAddress.substring(0, 6)}...${normalizedAddress.slice(-4)}`; // Dirección abreviada
+  const resolveName = (): string => {
+    const normalizedAddress = address.toLowerCase().trim();
+    if (ensName) return ensName;
+    if (aliases[normalizedAddress]) return aliases[normalizedAddress];
+    return `${normalizedAddress.substring(0, 6)}...${normalizedAddress.slice(-4)}`;
   };
 
   return <>{resolveName()}</>;
@@ -67,34 +63,39 @@ const GroupExpenses: React.FC<GroupExpensesProps> = ({ groupId }) => {
   }, [groupId]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.expensesTitle}>Expenses</h2>
-        <span className={styles.pendingStatus}>• Pending</span>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold">Expenses</h2>
+        <span className="text-yellow-500 font-medium">• Pending</span>
       </div>
-      <div className={styles.groupContainer}>
-        <ul className={styles.expensesList}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Description</TableHead>
+            <TableHead>Amount</TableHead>
+            <TableHead>Paid By</TableHead>
+            <TableHead>Shared With</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {expenses.map((expense, index) => (
-            <li key={index} className={styles.expenseItem}>
-              <div className={styles.expenseHeader}>
-                <span className={styles.expenseDescription}>{expense.description}</span>
-                <span className={styles.expenseAmount}> ${expense.amount}</span>
-              </div>
-              <div className={styles.expenseDetails}>
-                <span> Paid by: <ENSName address={expense.paidBy} /> </span>
-                <span>
-                   Shared with: {' '}
-                  {expense.sharedWith.map((member) => (
-                    <span key={member}>
-                      <ENSName address={member} />
-                    </span>
-                  ))}
-                </span>
-              </div>
-            </li>
+            <TableRow key={index}>
+              <TableCell>{expense.description}</TableCell>
+              <TableCell>${expense.amount}</TableCell>
+              <TableCell>
+                <ENSName address={expense.paidBy} />
+              </TableCell>
+              <TableCell>
+                {expense.sharedWith.map((member, idx) => (
+                  <span key={idx} className="block">
+                    <ENSName address={member} />
+                  </span>
+                ))}
+              </TableCell>
+            </TableRow>
           ))}
-        </ul>
-      </div>
+        </TableBody>
+      </Table>
     </div>
   );
 };

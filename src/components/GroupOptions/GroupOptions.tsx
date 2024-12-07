@@ -4,11 +4,18 @@ import SettleModal from './SettleModal/SettleModal';
 import WithdrawDepositModal from './WithdrawDepositModal'; // Ensure this import exists
 import { firestore } from '../../firebaseConfig';
 import { doc, getDoc, collection, addDoc, onSnapshot, Timestamp } from 'firebase/firestore';
-import styles from './GroupOptions.module.css';
 import { useEthersSigner } from '../../hooks/ethersHooks'; 
 import { APPLICATION_CONFIGURATION } from '../../consts/contracts';
 import { ethers } from 'ethers';
 import { useUser } from '../../utils/UserContext';
+import { success, error, loading, remove } from '../../utils/notificationUtils.tsx';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface GroupOptionsProps {
   groupId: string;
@@ -25,13 +32,17 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showSettleModal, setShowSettleModal] = useState(false);
   const [showWithdrawDepositModal, setShowWithdrawDepositModal] = useState(false); // Added state
-  const [modalActionType, setModalActionType] = useState<'Deposit' | 'Withdraw'>('Deposit'); // Added state
   const [groupMembers, setGroupMembers] = useState<string[]>([]);
   const { currentUser } = useUser(); // Usa el contexto
   const [hasActiveProposal, setHasActiveProposal] = useState<boolean>(false);
   const [userHasSigned, setUserHasSigned] = useState<boolean>(false);
   const [settleProposalId, setSettleProposalId] = useState<string>('');
   const signer = useEthersSigner(); // Signer desde Viem
+  const [modalActionType, setModalActionType] = useState<
+  "Deposit" | "Withdraw"
+>("Deposit");
+
+
 
    // Obtener miembros del grupo desde Firestore
    useEffect(() => {
@@ -92,15 +103,15 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
       console.log('Withdrawal confirmed.');
       onBalancesUpdate?.();
     } catch (error) {
+     
       console.error('Error during withdrawal:', error);
     }
-  };
-
-  const handleDepositFunds = async (amount: number) => {
+  };const handleDepositFunds = async (amount: number) => {
     if (!signer) {
       console.error('No signer found. Please connect a wallet.');
       return;
     }
+  
     try {
       const erc20Contract = new ethers.Contract(
         APPLICATION_CONFIGURATION.contracts.USDT_CONTRACT.address,
@@ -113,23 +124,53 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
         signer
       );
       const parsedAmount = ethers.parseUnits(amount.toString(), 6);
-
-      // Aprobar tokens para el contrato
-      const approveTx = await erc20Contract.approve(
-        APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
-        parsedAmount
-      );
-      console.log('Approve transaction sent:', approveTx.hash);
-      await approveTx.wait();
-
-      // Depositar tokens en el contrato
-      const depositTx = await squaryContract.depositFunds(groupId, parsedAmount);
-      console.log('Deposit transaction sent:', depositTx.hash);
-      await depositTx.wait();
-      console.log('Deposit confirmed.');
-      onBalancesUpdate?.();
-    } catch (error) {
-      console.error('Error during deposit:', error);
+  
+      // Notificación para el proceso de aprobación
+      let loadApprv: string | undefined; // Declarar la variable fuera del try-catch interno
+      try {
+        loadApprv = loading('Awaiting user confirmation for approval...');
+        const approveTx = await erc20Contract.approve(
+          APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
+          parsedAmount
+        );
+        remove(loadApprv);
+  
+        const loadComplete = loading('Awaiting for transaction to be completed...');
+        console.log('Approve transaction sent:', approveTx.hash);
+  
+        await approveTx.wait();
+        remove(loadComplete);
+        success('Approval completed successfully.');
+      } catch (approveError) {
+        if (loadApprv) remove(loadApprv); // Eliminar el spinner de aprobación si ocurre un error
+        error('Error during approval. Please try again.');
+        console.error('Approval failed:', approveError);
+        return; // Detener ejecución si falla la aprobación
+      }
+  
+      // Notificación para el proceso de depósito
+      let depositNotification: string | undefined; // Declarar la variable fuera del try-catch interno
+      try {
+        depositNotification = loading('Awaiting user confirmation for deposit...');
+        const depositTx = await squaryContract.depositFunds(groupId, parsedAmount);
+        remove(depositNotification);
+  
+        const txNotification = loading('Awaiting for transaction to be completed...');
+        console.log('Deposit transaction sent:', depositTx.hash);
+  
+        await depositTx.wait();
+        remove(txNotification);
+        success('Deposit completed successfully.');
+        console.log('Deposit confirmed.');
+        onBalancesUpdate?.();
+      } catch (depositError) {
+        if (depositNotification) remove(depositNotification); // Eliminar el spinner de depósito si ocurre un error
+        error('Error during deposit. Please try again.');
+        console.error('Deposit failed:', depositError);
+      }
+    } catch (generalError) {
+      console.error('Unexpected error during deposit:', generalError);
+      error('An unexpected error occurred. Please try again.');
     }
   };
 
@@ -164,60 +205,82 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
   const handleCloseSettleModal = () => setShowSettleModal(false);
 
   return (
-    <div className={styles.groupOptions}>
-      <h1 className={styles.title}>{groupName}</h1>
-      <div className={styles.buttonsContainer}>
-        <button
-          className={`${styles.button} ${styles.addExpense}`}
+    <Card className="mb-6">
+      <CardHeader className="text-center">
+        <CardTitle className="text-3xl font-semibold">{groupName}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-wrap justify-around gap-4">
+        {/* Add Expense Button */}
+        <Button
+          variant="default"
+          size="lg"
           onClick={handleOpenExpenseModal}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white"
         >
           Add Expense
-        </button>
-        <button
-          className={`${styles.button} ${styles.settleUp}`}
+        </Button>
+
+        {/* Settle Button */}
+        <Button
+          variant="default"
+          size="lg"
           onClick={handleOpenSettleModal}
+          className="bg-green-500 hover:bg-green-600 text-white"
         >
-          {hasActiveProposal ? (userHasSigned ? 'Signed' : 'Sign') : 'Start Settle'}
-        </button>
-        <button
-          className={`${styles.button} ${styles.deposit}`}
+          Start Settle
+        </Button>
+
+        {/* Deposit Button */}
+        <Button
+          variant="destructive"
+          size="lg"
           onClick={() => {
-            setModalActionType('Deposit');
+            setModalActionType("Deposit");
             setShowWithdrawDepositModal(true);
           }}
+          className="bg-red-500 hover:bg-red-600 text-white"
         >
           Deposit
-        </button>
-        <button
-          className={`${styles.button} ${styles.withdraw}`}
+        </Button>
+
+        {/* Withdraw Button */}
+        <Button
+          variant="outline"
+          size="lg"
           onClick={() => {
-            setModalActionType('Withdraw');
+            setModalActionType("Withdraw");
             setShowWithdrawDepositModal(true);
           }}
+          className="border-gray-500 hover:bg-gray-200 text-gray-800"
         >
           Withdraw
-        </button>
-      </div>
-      {showExpenseModal && currentUser &&(
-        <ExpenseModal
-          show={showExpenseModal}
-          handleClose={handleCloseExpenseModal}
-          addExpense={handleAddExpense}
-          groupMembers={groupMembers}
-          paidBy={currentUser}
-        />
-      )}
-      {showSettleModal && currentUser &&(
-        <SettleModal
-          show={showSettleModal}
-          handleClose={handleCloseSettleModal}
-          groupId={groupId}
-          currentUser={currentUser}
-          hasActiveProposal={hasActiveProposal}
-          userHasSigned={userHasSigned}
-          settleProposalId={settleProposalId}
-        />
-      )}
+        </Button>
+      </CardContent>
+
+      {/* Expense Modal */}
+      {showExpenseModal && currentUser && (
+      <ExpenseModal
+        show={showExpenseModal}
+        handleClose={handleCloseExpenseModal}
+        addExpense={handleAddExpense} // Aquí pasamos la función
+        groupMembers={groupMembers} // Asegúrate de que esté inicializado correctamente
+        paidBy={currentUser}
+      />
+    )}
+
+      {/* Settle Modal */}
+      {showSettleModal && currentUser && (
+    <SettleModal
+      show={showSettleModal}
+      handleClose={handleCloseSettleModal}
+      groupId={groupId}
+      currentUser={currentUser}
+      hasActiveProposal={hasActiveProposal} // Asegúrate de que esta propiedad está en el estado de GroupOptions
+      userHasSigned={userHasSigned} // Asegúrate de que esta propiedad está en el estado de GroupOptions
+      settleProposalId={settleProposalId} // Asegúrate de que esta propiedad está en el estado de GroupOptions
+    />
+    )}
+    {/* Withdraw/Deposit Modal */}
       {showWithdrawDepositModal && (
         <WithdrawDepositModal
           show={showWithdrawDepositModal}
@@ -225,8 +288,8 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
           actionType={modalActionType}
           handleAction={handleAction}
         />
-      )}
-    </div>
+    )}
+    </Card>
   );
 };
 

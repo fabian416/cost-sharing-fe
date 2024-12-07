@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { UserProvider } from './utils/UserContext'; 
+import { Toaster } from "react-hot-toast";
 import Home from './views/Home/Home';
 import Dashboard from './views/Dashboard/Dashboard';
 import GeneralPanel from './views/GeneralPanel/GeneralPanel';
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
 function App() {
   return (
       <UserProvider>
+        <Toaster/>
         <RouterProvider router={router} />
       </UserProvider>
   );

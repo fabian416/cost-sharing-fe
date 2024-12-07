@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { ethers } from 'ethers';
-import styles from './GroupBalances.module.css';
 import { useEnsName } from 'wagmi';
 import { useUser } from '../../../utils/UserContext';
 import { sepolia } from 'viem/chains';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 
 // Apollo Client setup
 const client = new ApolloClient({
@@ -121,69 +132,58 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ balances }) => {
   const availableBalances = processedBalances.filter((b) => b.available > 0);
   
   return (
-  <div className={styles.container}>
-    <div className={styles.header}>
-      <h2 className={styles.title}>Balances</h2>
-      <span className={styles.status}>• Confirmed</span>
+    <div className="flex flex-col gap-6">
+      <h2 className="text-xl font-bold">Balances</h2>
+      <Tabs defaultValue="available" className="w-full max-w-[600px] mx-auto">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="debts">Debts</TabsTrigger>
+          <TabsTrigger value="available">Available Balances</TabsTrigger>
+        </TabsList>
+
+        {/* Debts Section */}
+        <TabsContent value="debts">
+          {owingBalances.length > 0 ? (
+            owingBalances.map((balance) => (
+              <Card key={balance.id} className="border-red-500 mb-4">
+                <CardHeader>
+                  <CardTitle className="text-red-700">
+                    <ENSName address={balance.member} /> owes:
+                  </CardTitle>
+                  <CardDescription>
+                    ${Math.abs(balance.rawBalance).toFixed(2)}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))
+          ) : (
+            <p className="text-muted-foreground">No debts found for this group.</p>
+          )}
+        </TabsContent>
+
+        {/* Available Balances Section */}
+        <TabsContent value="available">
+          {availableBalances.length > 0 ? (
+            availableBalances.map((balance) => (
+              <Card key={balance.id} className="border-green-500 mb-4">
+                <CardHeader>
+                  <CardTitle className="text-green-700">
+                    <ENSName address={balance.member} /> available:
+                  </CardTitle>
+                  <CardDescription className="text-orange-500">
+                    ${balance.available.toFixed(2)}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))
+          ) : (
+            <p className="text-muted-foreground">
+              No available balances for this group.
+            </p>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
-    <div className={styles.groupContainer}>
-      <h3 className={styles.subTitle}>Debts</h3>
-      <ul className={styles.debtsList}>
-        {owingBalances.length > 0 ? (
-          owingBalances.map((balance) => (
-            <li
-              key={balance.id}
-              className={styles.debtCard}
-              style={{
-                border: '2px solid #c82333',
-                color: '#721c24',
-              }}
-            >
-              <span className={styles.member}>
-                <ENSName address={balance.member} />
-              </span>{' '}
-              owes{' '}
-              <span className={styles.amount}>
-                ${Math.abs(balance.rawBalance).toFixed(2)}
-              </span>{' '}
-              to{' '}
-              <span className={styles.creditor}>
-                {balance.creditor && <ENSName address={balance.creditor} />}
-              </span>
-            </li>
-          ))
-        ) : (
-          <p>No debts found for this group.</p>
-        )}
-      </ul>
-      <h3 className={styles.subTitle}>Available Balances</h3>
-      <ul className={styles.debtsList}>
-        {availableBalances.length > 0 ? (
-          availableBalances.map((balance) => (
-            <li
-              key={balance.id}
-              className={styles.debtCard}
-              style={{
-                border: '2px solid #218838',
-                color: '#155724',
-              }}
-            >
-              <span className={styles.member}>
-                <ENSName address={balance.member} />
-              </span>{' '}
-              available{' '}
-              <span className={styles.amount}>
-                ${balance.available.toFixed(2)}
-              </span>
-            </li>
-          ))
-        ) : (
-          <p>No available balances for this group.</p>
-        )}
-      </ul>
-    </div>
-  </div>
-);
+  );
 };
 
 export default GroupBalances;
