@@ -209,78 +209,79 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-semibold">{groupName}</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-wrap justify-around gap-4">
-        {/* Add Expense Button */}
-        <Button
-          variant="default"
-          size="lg"
-          onClick={handleOpenExpenseModal}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white"
-        >
-          Add Expense
-        </Button>
+      <CardContent className="flex justify-between gap-4">
+          {/* Add Expense Button */}
+          <Button
+            variant="default"
+            size="lg"
+            onClick={handleOpenExpenseModal}
+            className="bg-orange-400 hover:bg-orange-500 text-white w-full h-14 flex items-center justify-center font-medium rounded-md"
+          >
+            Add Expense
+          </Button>
 
-        {/* Settle Button */}
-        <Button
-          variant="default"
-          size="lg"
-          onClick={handleOpenSettleModal}
-          className="bg-green-500 hover:bg-green-600 text-white"
-        >
-          Start Settle
-        </Button>
+          {/* Start Settle Button */}
+          <Button
+            variant="default"
+            size="lg"
+            onClick={handleOpenSettleModal}
+            className="bg-orange-400 hover:bg-orange-500 text-white w-full h-14 flex items-center justify-center font-medium rounded-md"
+          >
+            Start Settle
+          </Button>
 
-        {/* Deposit Button */}
-        <Button
-          variant="destructive"
-          size="lg"
-          onClick={() => {
-            setModalActionType("Deposit");
-            setShowWithdrawDepositModal(true);
-          }}
-          className="bg-red-500 hover:bg-red-600 text-white"
-        >
-          Deposit
-        </Button>
+          {/* Deposit Button */}
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => {
+              setModalActionType("Deposit");
+              setShowWithdrawDepositModal(true);
+            }}
+            className="border-orange-500 text-orange-500 hover:bg-orange-100 hover:text-orange-600 w-full h-14 flex items-center justify-center font-medium rounded-md"
+          >
+            Deposit
+          </Button>
 
-        {/* Withdraw Button */}
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() => {
-            setModalActionType("Withdraw");
-            setShowWithdrawDepositModal(true);
-          }}
-          className="border-gray-500 hover:bg-gray-200 text-gray-800"
-        >
-          Withdraw
-        </Button>
-      </CardContent>
-
+          {/* Withdraw Button */}
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => {
+              setModalActionType("Withdraw");
+              setShowWithdrawDepositModal(true);
+            }}
+            className="border-orange-500 text-orange-500 hover:bg-orange-100 hover:text-orange-600 w-full h-14 flex items-center justify-center font-medium rounded-md"
+          >
+            Withdraw
+          </Button>
+        </CardContent>
+  
       {/* Expense Modal */}
       {showExpenseModal && currentUser && (
-      <ExpenseModal
-        show={showExpenseModal}
-        handleClose={handleCloseExpenseModal}
-        addExpense={handleAddExpense} // Aquí pasamos la función
-        groupMembers={groupMembers} // Asegúrate de que esté inicializado correctamente
-        paidBy={currentUser}
-      />
-    )}
-
+        <ExpenseModal
+          show={showExpenseModal}
+          handleClose={handleCloseExpenseModal}
+          addExpense={handleAddExpense}
+          groupMembers={groupMembers}
+          paidBy={currentUser}
+        />
+      )}
+  
       {/* Settle Modal */}
       {showSettleModal && currentUser && (
-    <SettleModal
-      show={showSettleModal}
-      handleClose={handleCloseSettleModal}
-      groupId={groupId}
-      currentUser={currentUser}
-      hasActiveProposal={hasActiveProposal} // Asegúrate de que esta propiedad está en el estado de GroupOptions
-      userHasSigned={userHasSigned} // Asegúrate de que esta propiedad está en el estado de GroupOptions
-      settleProposalId={settleProposalId} // Asegúrate de que esta propiedad está en el estado de GroupOptions
-    />
-    )}
-    {/* Withdraw/Deposit Modal */}
+        <SettleModal
+          show={showSettleModal}
+          handleClose={handleCloseSettleModal}
+          groupId={groupId}
+          currentUser={currentUser}
+          hasActiveProposal={hasActiveProposal}
+          userHasSigned={userHasSigned}
+          settleProposalId={settleProposalId}
+        />
+      )}
+  
+      {/* Withdraw/Deposit Modal */}
       {showWithdrawDepositModal && (
         <WithdrawDepositModal
           show={showWithdrawDepositModal}
@@ -288,7 +289,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
           actionType={modalActionType}
           handleAction={handleAction}
         />
-    )}
+      )}
     </Card>
   );
 };
