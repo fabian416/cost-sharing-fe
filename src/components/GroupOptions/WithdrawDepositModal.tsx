@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import Modal from 'react-modal';
-import styles from './SettleModal/SettleModal.module.css'; // Usar los mismos estilos del SettleModal para mantener consistencia
+import React, { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface WithdrawDepositModalProps {
   show: boolean;
   handleClose: () => void;
-  actionType: 'Withdraw' | 'Deposit'; // Define el tipo de acción
-  handleAction: (amount: number) => void; // Función para ejecutar la acción
+  actionType: "Withdraw" | "Deposit";
+  handleAction: (amount: number) => void;
 }
 
 const WithdrawDepositModal: React.FC<WithdrawDepositModalProps> = ({
@@ -15,54 +16,54 @@ const WithdrawDepositModal: React.FC<WithdrawDepositModalProps> = ({
   actionType,
   handleAction,
 }) => {
-  const [amount, setAmount] = useState<string>(''); // Manejamos el monto ingresado como string para validarlo
+  const [amount, setAmount] = useState<string>("");
 
   const handleSubmit = () => {
-    const parsedAmount = parseFloat(amount); // Convertir a número
+    const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      alert('Please enter a valid amount'); // Validación básica
+      alert("Please enter a valid positive amount");
       return;
     }
-    handleAction(parsedAmount); // Ejecutar la acción (retirar o depositar)
-    handleClose(); // Cerrar el modal después de la acción
+    handleAction(parsedAmount);
+    handleClose();
   };
 
   return (
-    <Modal
-      isOpen={show}
-      onRequestClose={handleClose}
-      className={styles.modal}
-      overlayClassName={styles.modalOverlay}
-    >
-      <div className={styles.modalHeader}>
-        <h2 className={styles.modalTitle}>{actionType} Funds</h2>
-        <button className={styles.closeButton} onClick={handleClose}>×</button>
-      </div>
-      <div className={styles.modalBody}>
-        <label htmlFor="amount" style={{ fontSize: '1.2rem', marginBottom: '10px', color: 'rgb(90, 90, 90)' }}>
-          Enter the amount to {actionType.toLowerCase()}:
-        </label>
-        <input
-          id="amount"
-          type="number"
-          placeholder="0.00"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px',
-            fontSize: '1.2rem',
-            border: '1px solid rgba(0, 0, 0, 0.1)',
-            borderRadius: '8px',
-            marginBottom: '20px',
-          }}
-        />
-        <button className={styles.proposeButton} onClick={handleSubmit}>
-          {actionType}
-        </button>
-      </div>
-    </Modal>
+    <Dialog open={show} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-4xl p-8">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-medium text-gray-800">{actionType} Funds</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div>
+            <label htmlFor="amount" className="block text-lg font-medium text-gray-700">
+              Enter the amount to {actionType.toLowerCase()}:
+            </label>
+            <Input
+              id="amount"
+              type="number"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^-/.test(value)) return; // Prevent typing negative numbers
+                setAmount(value);
+              }}
+              className="text-lg p-3.5 h-12"
+            />
+          </div>
+
+          <Button
+            onClick={handleSubmit}
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium text-lg py-3.5 h-14"
+          >
+            {actionType}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
 export default WithdrawDepositModal;
+
