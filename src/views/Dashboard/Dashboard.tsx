@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
-import Sidebar from '../../components/SideBar/SideBar';
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core"; // Import DynamicWidget
-import { Outlet, useNavigate } from 'react-router-dom';
-import styles from './Dashboard.module.css';
-import { useUser } from '../../utils/UserContext'; // Importa el UserContext
-import { useCreateGroup } from '../../hooks/useCreateGroup';
+import { useEffect } from "react";
+import Sidebar from "../../components/SideBar/SideBar";
+import { DynamicWidget } from "@dynamic-labs/sdk-react-core"; 
+import { Outlet, useNavigate } from "react-router-dom";
+import { useUser } from "../../utils/UserContext"; 
+import { useCreateGroup } from "../../hooks/useCreateGroup";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -13,22 +12,27 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!isConnected) {
-      navigate('/'); // Navega al login si no está conectado
+      navigate("/"); // Navega al login si no está conectado
     }
   }, [isConnected, navigate]);
 
   return (
-    <div className={styles.dashboardContainer}>
-      <Sidebar createGroup={createGroup} currentUser={currentUser} /> {/* Pasa currentUser desde el contexto */}
-      <div className={styles.mainContent}>
-        <div className={styles.topBar}>
-        <DynamicWidget />
-        </div>
-        <Outlet /> {/* Renderiza componentes hijos del Dashboard */}
+    <div className="flex h-screen w-screen bg-[#D9A673]">
+    {/* Sidebar */}
+    <Sidebar createGroup={createGroup} currentUser={currentUser} />
+    {/* Main Content */}
+    <div className="flex flex-col flex-grow overflow-auto">
+      {/* Top Bar */}
+      <div className="flex justify-end p-4">
+      <DynamicWidget />
+      </div>
+      {/* Outlet para el contenido */}
+      <div className="flex-grow p-6">
+        <Outlet />
       </div>
     </div>
+  </div>
   );
 };
 
 export default Dashboard;
-
