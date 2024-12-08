@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
-import styles from './SettleModal.module.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { cn } from "../../../lib/utils";
 import { addDoc, updateDoc, doc, arrayUnion, getDoc, collection, getDocs, writeBatch, deleteDoc } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
 import { ethers } from 'ethers';
@@ -267,37 +269,48 @@ const SettleModal: React.FC<SettleModalProps> = ({
   }
 
   return (
-    <Modal
-      isOpen={show}
-      onRequestClose={handleClose}
-      className={styles.modal}
-      overlayClassName={styles.modalOverlay}
-    >
-      <div className={styles.modalHeader}>
-        <h2 className={styles.modalTitle}>Settle Debts</h2>
-        <button className={styles.closeButton} onClick={handleClose}>×</button>
-      </div>
-      <div className={styles.modalBody}>
-        <ul className={styles.debtsList}>
-          {simplifiedDebts.map((debt, index) => (
-            <li key={index} className={styles.debtItem}>
-              <span className={styles.member}>
-                <ENSName address={debt.debtor} /> owes{' '}
-                <ENSName address={debt.creditor} />:
-              </span>
-              <span className={styles.amount}>${debt.amount.toFixed(2)}</span>
-            </li>
-          ))}
-        </ul>
-        <button
-          className={styles.proposeButton}
-          onClick={handleProposeSettle}
-          disabled={hasActiveProposal && userHasSigned}
-        >
-          {hasActiveProposal ? (userHasSigned ? 'Signed' : 'Sign') : 'Propose Settle'}
-        </button>
-      </div>
-    </Modal>
+    <Dialog open={show} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-4xl p-8">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-medium text-black-600">
+            Settle Debts
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          {/* List of Debts */}
+          <ul className="space-y-4">
+            {simplifiedDebts.map((debt, index) => (
+              <li
+                key={index}
+                className="flex justify-between items-center border-b pb-3 text-lg"
+              >
+                <span className="text-gray-700">
+                  <ENSName address={debt.debtor} /> owes{" "}
+                  <ENSName address={debt.creditor} />:
+                </span>
+                <span className="text-black font-semibold">
+                  ${debt.amount.toFixed(2)}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Action Button */}
+          <Button
+            onClick={handleProposeSettle}
+            disabled={hasActiveProposal && userHasSigned}
+            className={cn(
+              "w-full py-4 text-lg h-14 font-medium", // Adjusted py and h for taller button
+              hasActiveProposal && userHasSigned
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-yellow-500 hover:bg-yellow-600 text-white"
+            )}
+          >
+            {hasActiveProposal ? (userHasSigned ? "Signed" : "Sign") : "Propose Settle"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

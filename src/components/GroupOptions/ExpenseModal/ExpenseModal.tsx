@@ -189,7 +189,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
               parseFloat(amount) <= 0 ||
               selectedMembers.length === 0
             }
-            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium text-lg py-3.5 h-12 "
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium text-lg py-4 h-14 "
           >
             Add Expense
           </Button>
