@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEnsName } from 'wagmi';
@@ -103,9 +103,9 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
 
   return (
     <Dialog open={show} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-3xl p-8">
+      <DialogContent className="sm:max-w-4xl p-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Add Expense</DialogTitle>
+          <DialogTitle className="text-3xl font-medium text-black-600">Add Expense</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Description Input */}
