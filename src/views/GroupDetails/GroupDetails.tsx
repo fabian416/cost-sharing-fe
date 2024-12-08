@@ -5,6 +5,9 @@ import GroupExpenses from "../../components/GroupOptions/GroupExpenses/GroupExpe
 import GroupBalances, {
   fetchBalances,
 } from "../../components/GroupOptions/GroupBalances/GroupBalances";
+import {
+  Card
+} from "@/components/ui/card";
 
 interface Balance {
   id: string;
@@ -44,14 +47,18 @@ const GroupDetails = () => {
       {/* Contenedor de Expenses y Balances */}
       <div className="grid grid-cols-2 gap-6 flex-grow">
         {/* Expenses */}
+        <Card className="mb-6"> 
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <GroupExpenses groupId={groupId} />
-        </div>
+          </div>
+        </Card>
 
         {/* Balances */}
+        <Card className="mb-6"> 
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <GroupBalances balances={balances} />
         </div>
+        </Card>
       </div>
     </div>
   );
