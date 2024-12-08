@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
-import styles from './ExpenseModal.module.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useEnsName } from 'wagmi';
 import { useUser } from '../../../utils/UserContext';
 import { sepolia } from 'viem/chains';
@@ -17,17 +18,17 @@ interface ExpenseModalProps {
 const ENSName: React.FC<{ address: string }> = ({ address }) => {
   const { data: ensName } = useEnsName({
     address: address as `0x${string}`,
-    chainId: sepolia.id, // CHANGE TO SEPOLIA MAINNET
+    chainId: sepolia.id,
   });
   const { aliases } = useUser();
 
   const resolveName = (): string => {
-    if (ensName) return ensName; // Si hay ENS
-    if (aliases[address.toLowerCase()]) return aliases[address.toLowerCase()]; // Si hay alias
-    return `${address.substring(0, 6)}...${address.slice(-4)}`; // Dirección abreviada
+    if (ensName) return ensName; // If ENS name exists
+    if (aliases[address.toLowerCase()]) return aliases[address.toLowerCase()]; // If alias exists
+    return `${address.substring(0, 6)}...${address.slice(-4)}`; // Shortened address
   };
 
-  return <>{resolveName()}</>;
+  return resolveName();
 };
 
 const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpense, groupMembers, paidBy }) => {
@@ -101,72 +102,100 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ show, handleClose, addExpen
   };
 
   return (
-    <Modal
-      isOpen={show}
-      onRequestClose={handleClose}
-      shouldCloseOnOverlayClick={false}
-      className={styles.modal}
-      overlayClassName={styles.modalOverlay}
-    >
-      <div className={styles.modalHeader}>
-        <h2 className={styles.modalTitle}>Add Expense</h2>
-        <button className={styles.closeButton} onClick={handleClose}>×</button>
-      </div>
-      <form onSubmit={handleSubmit} className={styles.modalBody}>
-        <div className={styles.formGroup}>
-          <label>Description:</label>
-          <input
-            type="text"
-            value={description}
-            onChange={handleDescriptionChange}
-            placeholder="Enter description"
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label>Amount:</label>
-          <input
-            type="text"
-            value={amount}
-            onChange={handleAmountChange}
-            placeholder="Enter amount"
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label>Paid By:</label>
-          <select value={payer} onChange={handlePayerChange}>
-            {groupMembers.map((member, index) => (
-              <option key={index} value={member}>
-                <ENSName address={member} />
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className={styles.formGroup}>
-          <label>Share With:</label>
-          <div className={styles.membersList}>
-          {groupMembers
-          .filter(member => member !== payer) // Excluye dinámicamente al pagador
-          .map((member, index) => (
-            <button
-              key={index}
-              type="button"
-              className={`${styles.memberButton} ${selectedMembers.includes(member) ? styles.selected : ''}`}
-              onClick={() => handleMemberSelect(member)}
-            >
-              <ENSName address={member} />
-            </button>
-          ))}
+    <Dialog open={show} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-3xl p-8">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold">Add Expense</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Description Input */}
+          <div>
+            <label htmlFor="description" className="block text-lg font-medium text-gray-700">
+              Description:
+            </label>
+            <Input
+              id="description"
+              type="text"
+              value={description}
+              onChange={handleDescriptionChange}
+              placeholder="Enter description"
+              className="text-lg p-3.5 h-12"
+            />
           </div>
-        </div>
-        <button
-          type="submit"
-          className={styles.addButton}
-          disabled={!description || /^\d+$/.test(description) || parseFloat(amount) <= 0 || selectedMembers.length === 0}
-        >
-          Add Expense
-        </button>
-      </form>
-    </Modal>
+          {/* Amount Input */}
+          <div>
+            <label htmlFor="amount" className="block text-lg font-medium text-gray-700">
+              Amount:
+            </label>
+            <Input
+              id="amount"
+              type="text"
+              value={amount}
+              onChange={handleAmountChange}
+              placeholder="Enter amount"
+              className="text-lg p-3.5 h-12"
+            />
+          </div>
+  
+          {/* Paid By Dropdown */}
+          <div>
+            <label htmlFor="paidBy" className="block text-lg font-medium text-gray-700">
+              Paid By:
+            </label>
+            <select
+              id="paidBy"
+              value={payer}
+              onChange={handlePayerChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm p-3 h-12 truncate"
+            >
+              {groupMembers.map((member, index) => (
+                <option key={index} value={member} className="text-base text-gray-700">
+                  {ENSName({ address: member })} {/* Plain text output */}
+                </option>
+              ))}
+            </select>
+          </div>
+  
+          {/* Share With Buttons */}
+          <div>
+            <label htmlFor="shareWith" className="block text-lg font-medium text-gray-700">
+              Share With:
+            </label>
+            <div className="mt-2 flex flex-wrap gap-4">
+              {groupMembers
+                .filter((member) => member !== payer) // Exclude the payer
+                .map((member, index) => (
+                  <Button
+                    key={index}
+                    type="button"
+                    variant={selectedMembers.includes(member) ? 'default' : 'outline'}
+                    onClick={() => handleMemberSelect(member)}
+                    className={`${
+                      selectedMembers.includes(member) ? 'bg-green-500 text-white' : ''
+                    } text-lg py-3 px-6`}
+                  >
+                    <ENSName address={member} />
+                  </Button>
+                ))}
+            </div>
+          </div>
+  
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={
+              !description ||
+              /^\d+$/.test(description) ||
+              parseFloat(amount) <= 0 ||
+              selectedMembers.length === 0
+            }
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium text-lg py-3.5 h-12 "
+          >
+            Add Expense
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

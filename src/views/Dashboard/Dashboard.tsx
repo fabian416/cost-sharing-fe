@@ -17,7 +17,7 @@ const Dashboard = () => {
   }, [isConnected, navigate]);
 
   return (
-    <div className="flex h-screen w-screen bg-[#D9A673]">
+    <div className="flex h-screen w-screen bg-[#F3D9B1]">
     {/* Sidebar */}
     <Sidebar createGroup={createGroup} currentUser={currentUser} />
     {/* Main Content */}
