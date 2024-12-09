@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import Sidebar from "../../components/SideBar/SideBar";
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core"; 
 import { Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "../../utils/UserContext"; 
 import { useCreateGroup } from "../../hooks/useCreateGroup";
@@ -24,7 +23,7 @@ const Dashboard = () => {
     <div className="flex flex-col flex-grow overflow-auto">
       {/* Top Bar */}
       <div className="flex justify-end p-4">
-      <DynamicWidget />
+      <appkit-button />
       </div>
       {/* Outlet para el contenido */}
       <div className="flex-grow p-6">
