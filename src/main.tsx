@@ -25,7 +25,7 @@ const metadata = {
 };
 
 // 4. Set networks
-const networks = [mainnet, sepolia, base, baseSepolia];
+const networks = [baseSepolia, base ];
 
 // 5. Create the Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
@@ -37,7 +37,7 @@ const wagmiAdapter = new WagmiAdapter({
 // 6. Initialize AppKit
 createAppKit({
   adapters: [wagmiAdapter],
-  networks:[mainnet, sepolia, base, baseSepolia],
+  networks:[baseSepolia, base],
   projectId,
   metadata,
   features: {
