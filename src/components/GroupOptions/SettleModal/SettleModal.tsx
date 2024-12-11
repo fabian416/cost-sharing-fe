@@ -163,7 +163,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
     const formattedDebts = simplifiedDebts.map(debt => ({
       debtor: ethers.getAddress(debt.debtor),
       creditor: ethers.getAddress(debt.creditor),
-      amount: ethers.parseUnits(debt.amount.toString(), 6).toString(),
+      amount: ethers.parseUnits(Number(debt.amount).toFixed(6), 6).toString(),
     }));
   
     console.log("Simplified Debts:", simplifiedDebts); // Imprimir las deudas simplificadas en consola

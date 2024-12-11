@@ -5,8 +5,6 @@ const PanelOptions = () => {
     <div className={styles.panelOptions}>
       <h1 className={styles.title}>Dashboard</h1>
       <div className={styles.buttonsContainer}>
-        <button className={`${styles.button} ${styles.addExpense}`} onClick={() => console.log("Add Expense Clicked")}>Add Expense</button>
-        <button className={`${styles.button} ${styles.settleUp}`} onClick={() => console.log("Settle Up Clicked")}>Settle Up</button>
       </div>
     </div>
   );
