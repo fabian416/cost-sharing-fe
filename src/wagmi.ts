@@ -3,7 +3,7 @@ import { mainnet, sepolia, base, baseSepolia } from 'wagmi/chains';
 import { http } from 'viem';
 
 export const wagmiConfig = createConfig({
-  chains: [base, baseSepolia],
+  chains: [baseSepolia],
   multiInjectedProviderDiscovery: false,
   transports: {
     [mainnet.id]: http(),
