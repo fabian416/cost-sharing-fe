@@ -8,7 +8,7 @@ import { createAppKit } from "@reown/appkit";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { mainnet, sepolia, base, baseSepolia } from "@reown/appkit/networks";
+import { base, baseSepolia } from "@reown/appkit/networks";
 
 // 1. Setup QueryClient
 const queryClient = new QueryClient();
