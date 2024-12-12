@@ -10,6 +10,7 @@ import { ethers } from 'ethers';
 import { useUser } from '../../utils/UserContext';
 import { success, error, loading, remove } from '../../utils/notificationUtils.tsx';
 import { Button } from "@/components/ui/button";
+import { cn } from "../../lib/utils";
 import {
   Card,
   CardContent,
@@ -222,13 +223,17 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
 
           {/* Start Settle Button */}
           <Button
-            variant="default"
-            size="lg"
-            onClick={handleOpenSettleModal}
-            className="bg-orange-400 hover:bg-orange-500 text-white w-full h-14 flex items-center justify-center font-medium rounded-md"
-          >
-            Start Settle
-          </Button>
+          variant="default"
+          size="lg"
+          onClick={handleOpenSettleModal}
+          className={cn(
+            "bg-orange-400 hover:bg-orange-500 text-white w-full h-14 flex items-center justify-center font-medium rounded-md",
+            hasActiveProposal ? "bg-gray-400 cursor-not-allowed" : "bg-orange-400"
+          )}
+          disabled={hasActiveProposal && userHasSigned}
+        >
+          {hasActiveProposal ? (userHasSigned ? "Signed" : "Sign") : "Start Settle"}
+        </Button>
 
           {/* Deposit Button */}
           <Button

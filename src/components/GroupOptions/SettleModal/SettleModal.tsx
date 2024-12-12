@@ -297,17 +297,21 @@ const SettleModal: React.FC<SettleModalProps> = ({
 
           {/* Action Button */}
           <Button
-            onClick={handleProposeSettle}
-            disabled={hasActiveProposal && userHasSigned}
-            className={cn(
-              "w-full py-4 text-lg h-14 font-medium", // Adjusted py and h for taller button
-              hasActiveProposal && userHasSigned
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-yellow-500 hover:bg-yellow-600 text-white"
-            )}
-          >
-            {hasActiveProposal ? (userHasSigned ? "Signed" : "Sign") : "Propose Settle"}
-          </Button>
+          onClick={handleProposeSettle}
+          disabled={hasActiveProposalState && userHasSigned} // Use state to manage button interactivity
+          className={cn(
+            "w-full py-4 text-lg h-14 font-medium transition-all duration-200", // Base styles
+            hasActiveProposalState && userHasSigned
+              ? "bg-gray-400 cursor-not-allowed" // Disabled state
+              : "bg-yellow-500 hover:bg-yellow-600 text-white" // Active state
+          )}
+        >
+          {hasActiveProposalState
+            ? userHasSigned
+              ? "Signed" // Button text when signed
+              : "Sign" // Button text when signature is needed
+            : "Propose Settle"} // Default text when no active proposal
+        </Button>
         </div>
       </DialogContent>
     </Dialog>
