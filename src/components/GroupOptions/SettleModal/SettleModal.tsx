@@ -258,7 +258,6 @@ const SettleModal: React.FC<SettleModalProps> = ({
       else {
         console.log('Signed settle proposal successfully.');
       }
-    
       // Cierra el modal automáticamente
       handleClose();
     }
@@ -310,7 +309,7 @@ const SettleModal: React.FC<SettleModalProps> = ({
             ? userHasSigned
               ? "Signed" // Button text when signed
               : "Sign" // Button text when signature is needed
-            : "Propose Settle"} // Default text when no active proposal
+            : "Propose Settle"}
         </Button>
         </div>
       </DialogContent>

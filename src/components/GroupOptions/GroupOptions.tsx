@@ -205,6 +205,9 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
   };
   const handleCloseSettleModal = () => setShowSettleModal(false);
 
+  console.log("hasActiveProposal:", hasActiveProposal);
+  console.log("userHasSigned:", userHasSigned);
+
   return (
     <Card className="mb-6">
       <CardHeader className="text-center">
@@ -225,12 +228,14 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
           <Button
           variant="default"
           size="lg"
-          onClick={handleOpenSettleModal}
+          onClick={!hasActiveProposal || !userHasSigned ? handleOpenSettleModal : undefined} // Prevent click if disabled
           className={cn(
-            "bg-orange-400 hover:bg-orange-500 text-white w-full h-14 flex items-center justify-center font-medium rounded-md",
-            hasActiveProposal ? "bg-gray-400 cursor-not-allowed" : "bg-orange-400"
+            "w-full h-14 flex items-center justify-center font-medium rounded-md transition-all duration-200",
+            hasActiveProposal && userHasSigned
+              ? "bg-gray-400 cursor-not-allowed" // Disabled state
+              : "bg-orange-400 hover:bg-orange-500 text-white" // Active state
           )}
-          disabled={hasActiveProposal && userHasSigned}
+          disabled={hasActiveProposal && userHasSigned} // Only disable when the user has already signed
         >
           {hasActiveProposal ? (userHasSigned ? "Signed" : "Sign") : "Start Settle"}
         </Button>
