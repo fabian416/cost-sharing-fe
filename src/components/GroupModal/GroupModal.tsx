@@ -6,7 +6,7 @@ import { useAccount } from 'wagmi';
 interface GroupModalProps {
   show: boolean;
   handleClose: () => void;
-  createGroup: (groupName: string, members: string[], tokenAddress: string, signatureThreshold: string) => Promise<void>;
+  createGroup: (groupName: string, members: string[], tokenAddress: string) => Promise<void>;
   onGroupCreated: () => void;
 }
 
@@ -44,7 +44,7 @@ const GroupModal: React.FC<GroupModalProps> = ({ show, handleClose, createGroup,
     }
 
     const allMembers = [address, ...members].filter(Boolean) as string[];
-    await createGroup(groupName, allMembers, tokenAddress, signatureThreshold);
+    await createGroup(groupName, allMembers, tokenAddress);
     onGroupCreated();
     handleModalClose();
   };

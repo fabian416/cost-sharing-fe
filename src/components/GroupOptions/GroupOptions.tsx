@@ -86,28 +86,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
     return () => unsubscribe();
   }, [groupId, signer]);
 
-  const handleWithdrawFunds = async (amount: number) => {
-    if (!signer) {
-      console.error('No signer found. Please connect a wallet.');
-      return;
-    }
-    try {
-      const contract = new ethers.Contract(
-        APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.address,
-        APPLICATION_CONFIGURATION.contracts.SQUARY_CONTRACT.abi,
-        signer
-      );
-      const parsedAmount = ethers.parseUnits(amount.toString(), 6);
-      const tx = await contract.withdrawFunds(groupId, parsedAmount);
-      console.log('Withdraw transaction sent:', tx.hash);
-      await tx.wait();
-      console.log('Withdrawal confirmed.');
-      onBalancesUpdate?.();
-    } catch (error) {
-     
-      console.error('Error during withdrawal:', error);
-    }
-  };const handleDepositFunds = async (amount: number) => {
+  const handleDepositFunds = async (amount: number) => {
     if (!signer) {
       console.error('No signer found. Please connect a wallet.');
       return;
@@ -177,11 +156,12 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
 
   const handleAction = async (amount: number) => {
     if (modalActionType === 'Withdraw') {
-      await handleWithdrawFunds(amount);
+      await null;
     } else if (modalActionType === 'Deposit') {
       await handleDepositFunds(amount);
     }
   };
+
   const handleAddExpense = async (amount: number, description: string, sharedWith: string[], paidBy: string) => {
     const newExpense = {
       amount,
@@ -251,19 +231,6 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ groupId, groupName, onBalan
             className="border-orange-500 text-orange-500 hover:bg-orange-100 hover:text-orange-600 w-full h-14 flex items-center justify-center font-medium rounded-md"
           >
             Deposit
-          </Button>
-
-          {/* Withdraw Button */}
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => {
-              setModalActionType("Withdraw");
-              setShowWithdrawDepositModal(true);
-            }}
-            className="border-orange-500 text-orange-500 hover:bg-orange-100 hover:text-orange-600 w-full h-14 flex items-center justify-center font-medium rounded-md"
-          >
-            Withdraw
           </Button>
         </CardContent>
   
